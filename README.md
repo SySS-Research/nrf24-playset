@@ -27,7 +27,7 @@ by the Bastille Threat Research Team (many thanks to @marcnewlin)
 Proof-of-concept software tool to demonstrate the replay and keystroke injection
 vulnerabilities of the wireless keyboard Cherry B.Unlimited AES
 
-![Cherry Attack PoC](https://github.com/SySS-Research/nrf24-playset/images/cherry_attack_poc.png)
+![Cherry Attack PoC](https://github.com/SySS-Research/nrf24-playset/blob/master/images/cherry_attack_poc.png)
 
 
 ### keystroke_injector.py
