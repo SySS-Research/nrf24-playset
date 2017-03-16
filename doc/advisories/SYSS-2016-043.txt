@@ -1,0 +1,227 @@
+﻿-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA512
+
+Advisory ID: SYSS-2016-043
+Product: Microsoft Wireless Desktop 2000
+Manufacturer: Microsoft
+Affected Version(s): Ver. A
+Tested Version(s): Ver. A
+Vulnerability Type: Cryptographic Issues (CWE-310)
+                    Insufficient Protection against Replay Attacks
+Risk Level: Medium
+Solution Status: Open
+Manufacturer Notification: 2016-05-19
+Solution Date: - 
+Public Disclosure: 2016-10-05
+CVE Reference: Not yet assigned
+Authors of Advisory: Matthias Deeg and Gerhard Klostermeier (SySS GmbH)
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Overview:
+
+Microsoft Wireless Desktop 2000 is a wireless desktop set consisting of
+a mouse and a keyboard.
+
+The manufacturer describes the product as follows (see [1]):
+
+"This keyboard features Advanced Encryption Standard (AES) technology, 
+which is designed to help protect your information by encrypting your
+keystrokes. Each keyboard is permanently paired with its receiver at 
+the factory - no key information is ever shared over the air."
+
+Due to an insecure implementation of the encrypted data communication,
+the wireless keyboard Microsoft Wireless Desktop 2000 is prone to replay
+attacks with certain restrictions.
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Vulnerability Details:
+
+The SySS GmbH found out that the Microsoft Wireless Desktop 2000
+keyboard is prone to replay attacks with some limitations.
+
+An attacker can sniff the AES-encrypted data packets of the 2.4 GHz
+radio communication sent by the keyboard to the receiver (USB dongle)
+and replay the recorded communication data causing the same effect as
+the original data communication.
+
+According to test results of the SySS GmbH, the Microsoft Wireless
+Desktop 2000 keyboard and its USB dongle have implemented a replay
+protection based on an incrementing packet counter. But the used
+window for valid packet counter values is large enough to perform
+a replay attack if there were not too many data packets caused by
+further keystrokes between the attacker's recording and the playback.
+
+A replay attack against the keyboard can, for example, be used to gain
+unauthorized access to a computer system that is operated with a
+vulnerable Microsoft Wireless Desktop 2000 keyboard. In this attack
+scenario, an attacker records the radio communication during a
+password-based user authentication of his or her victim, for instance
+during a login to the operating system or during unlocking a screen
+lock. At an opportune moment when the victim's computer system is
+unattended, the attacker approaches the victim's computer and replays
+the previously recorded AES-encrypted data communication for the
+password-based user authentication and by this gets unauthorized access 
+to the victim's system.
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Proof of Concept (PoC):
+
+The SySS GmbH could successfully perform a replay attack as described
+in the previous section using the USB radio dongle Crazyradio PA (see
+[2]) and a simple proof-of-concept software tool.
+
+The following output exemplarily illustrates a replay attack with the
+recorded data packets for the word "test".
+
+# python simple_replay.py
+Simple nRF24 Replay Tool v0.1 by Matthias Deeg - SySS GmbH (c) 2016
+[*] Configure radio
+[*] Start recording. Press <CTRL+C> to stop recording ...
+[+] Received data: 099816019c49e8e3d7004fb2c6d1c999c5cdd0d6
+[+] Received data: 099816019c49e8e3d7004fb2c6d1c999c5cdd0d6
+[+] Received data: 083816016234008e
+[+] Received data: 083816016234008e
+[+] Received data: 099816016ae20e05e28d725888c4ede685f918e7
+[+] Received data: 099816016ae20e05e28d725888c4ede685f918e7
+[+] Received data: 09981601896c8f035a7a800fcf0a5ba58be156e4
+[+] Received data: 09981601896c8f035a7a800fcf0a5ba58be156e4
+[+] Received data: 0838160164340088
+[+] Received data: 0838160164340088
+[+] Received data: 099816019703529705956290664c0cda94ab28b6
+[+] Received data: 099816019703529705956290664c0cda94ab28b6
+[+] Received data: 0998160168690f3817261c9e068577dd450a245a
+[+] Received data: 0998160168690f3817261c9e068577dd450a245a
+[+] Received data: 083816016634008a
+[+] Received data: 083816016634008a
+[+] Received data: 083816016634008a
+[+] Received data: 083816016634008a
+[+] Received data: 09981601653e89ebf7499ce2b7f962e9da48c5f4
+[+] Received data: 09981601653e89ebf7499ce2b7f962e9da48c5f4
+[+] Received data: 09981601f7612ae3b196b5767ab0a4dd615651e2
+[+] Received data: 0838160168340084
+[+] Received data: 0838160168340084
+[+] Received data: 09981601db67b32134efa3fefd8b01efb124581d
+[+] Received data: 09981601db67b32134efa3fefd8b01efb124581d
+^C
+[*] Stop recording
+[*] Press <ENTER> to replay the recorded data packets or <CTRL+C> to quit ...
+[+] Send data: 099816019c49e8e3d7004fb2c6d1c999c5cdd0d6
+[+] Send data: 099816019c49e8e3d7004fb2c6d1c999c5cdd0d6
+[+] Send data: 083816016234008e
+[+] Send data: 083816016234008e
+[+] Send data: 099816016ae20e05e28d725888c4ede685f918e7
+[+] Send data: 099816016ae20e05e28d725888c4ede685f918e7
+[+] Send data: 09981601896c8f035a7a800fcf0a5ba58be156e4
+[+] Send data: 09981601896c8f035a7a800fcf0a5ba58be156e4
+[+] Send data: 0838160164340088
+[+] Send data: 0838160164340088
+[+] Send data: 099816019703529705956290664c0cda94ab28b6
+[+] Send data: 099816019703529705956290664c0cda94ab28b6
+[+] Send data: 0998160168690f3817261c9e068577dd450a245a
+[+] Send data: 0998160168690f3817261c9e068577dd450a245a
+[+] Send data: 083816016634008a
+[+] Send data: 083816016634008a
+[+] Send data: 083816016634008a
+[+] Send data: 083816016634008a
+[+] Send data: 09981601653e89ebf7499ce2b7f962e9da48c5f4
+[+] Send data: 09981601653e89ebf7499ce2b7f962e9da48c5f4
+[+] Send data: 09981601f7612ae3b196b5767ab0a4dd615651e2
+[+] Send data: 0838160168340084
+[+] Send data: 0838160168340084
+[+] Send data: 09981601db67b32134efa3fefd8b01efb124581d
+[+] Send data: 09981601db67b32134efa3fefd8b01efb124581d
+[*] Press <ENTER> to replay the recorded data packets or <CTRL+C> to quit ...^C
+[*] Stop replaying
+[*] Done.
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Solution:
+
+The SySS GmbH is not aware of a solution for this reported security
+vulnerability.
+
+For further information please contact the manufacturer.
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Disclosure Timeline:
+
+2016-05-19: Vulnerability reported to manufacturer
+2016-05-19: Manufacturer acknowledges e-mail with SySS security advisory
+2016-06-06: E-mail to manufacturer according current status
+2016-06-27: Another e-mail to manufacturer according current status
+2016-06-27: E-mail from manufacturer requesting further information
+2016-06-28: Provided further information and PoC software tool
+2016-07-07: E-mail from manufacturer with further information and
+            question about intended disclosure
+2016-07-08: E-mail to manufacturer concerning the planned responsible
+            disclosure
+2016-08-04: E-mail from manufacturer concerning limitations of actual
+            attacks
+2016-10-05: Public release of the security advisory
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+References:
+
+[1] Product website for Microsoft Wireless Desktop 2000
+    https://www.microsoft.com/accessories/en-us/products/keyboards/wireless-desktop-2000/m7j-00001
+[2] Product website for Crazyradio PA
+    https://www.bitcraze.io/crazyradio-pa/
+[3] SySS Security Advisory SYSS-2016-043
+    https://www.syss.de/fileadmin/dokumente/Publikationen/Advisories/SYSS-2016-043.txt
+[4] SySS Responsible Disclosure Policy
+    https://www.syss.de/en/responsible-disclosure-policy/
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Credits:
+
+This security vulnerability was found by Matthias Deeg and Gerhard
+Klostermeier of the SySS GmbH.
+
+E-Mail: matthias.deeg (at) syss.de
+Public Key: https://www.syss.de/fileadmin/dokumente/Materialien/PGPKeys/Matthias_Deeg.asc
+Key fingerprint = D1F0 A035 F06C E675 CDB9 0514 D9A4 BF6A 34AD 4DAB
+
+E-Mail: gerhard.klostermeier (at) syss.de
+Public Key: https://www.syss.de/fileadmin/dokumente/PGPKeys/Gerhard_Klostermeier.asc
+Key fingerprint = 8A9E 75CC D510 4FF6 8DB5 CC30 3802 3AAB 573E B2E7
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Disclaimer:
+
+The information provided in this security advisory is provided "as is" 
+and without warranty of any kind. Details of this security advisory may 
+be updated in order to provide as accurate information as possible. The
+latest version of this security advisory is available on the SySS Web 
+site.
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Copyright:
+
+Creative Commons - Attribution (by) - Version 3.0
+URL: http://creativecommons.org/licenses/by/3.0/deed.en
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIcBAEBCgAGBQJX9L/fAAoJENmkv2o0rU2riMQQAJA1pgZi1y6ojVO/yXkQHTfU
+TSK/4+8kkkl0VirV6jmc+nfhRD8FP7/d9ZRQUgR7jkehva5/9gonY5k3cWFfLni0
+L+3uLON3Ca96yKs6u6LG8AfSaeNUIvHRIQq+WzC8GtmJJGtsKGqXK687Q76Ni1e9
+XKlmm0bFEhaTq3j2fZ8QMoi5ec4+ObMs0cJDmRyObFz3umGikn5fDp+0h98GOqfj
+FAqfYD378VYfcFaWtA3sOnZw3vVVjsYHOnAIdtlQpohXbJApf83TTCp4oWdjZTZS
+Fd0fgQrX2tcE993eOAo/95tIYlO4RXJiXuOFJdcf448zXlmz8zD/8YftL0t/Q/Bm
+cL//sB5BcFxUFuZFrPL6zmjTupf0o9CAZCGPd/fhfdRHEkfmzvyVsSBsB3Cg1Fmf
+HY2CTKUAm5Q3Yb3XoxQfoolVqYkT07qAcxngyMxIL3iBLLt0uosnUNJnAc/YB5u/
+u7nM3KEtZbR3EyvBDwXU1tqa2FjBaPckzaf5zDYvJ5xCXUtwXy4/DzVaeQJjDl3V
+IGYpmRmukHD3VTIkmfZ9AHZeIhdo74qU9YBpQcWP8XjlEcfr/Pk1n2CqOj0ZE4lI
+pWJrPwL3NUy54svBhKAI2w0rNgkUlnk5xlVCYYG6TXyYQnqwEFb9vsBZYIWkQf8g
+oXDN0lPWQODNhbImepky
+=oqk4
+-----END PGP SIGNATURE-----

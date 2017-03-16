@@ -1,0 +1,201 @@
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA512
+
+Advisory ID: SYSS-2016-038
+Product: CHERRY B.UNLIMITED AES
+Manufacturer: Cherry GmbH
+Affected Version(s): JD-0400EU-2/01
+Tested Version(s): JD-0400EU-2/01
+Vulnerability Type: Cryptographic Issues (CWE-310)
+                    Keystroke Injection Vulnerability
+Risk Level: High
+Solution Status: Open
+Manufacturer Notification: 2016-05-04
+Solution Date: -
+Public Disclosure: 2016-07-29
+CVE Reference: Not yet assigned
+Authors of Advisory: Matthias Deeg and Gerhard Klostermeier (SySS GmbH)
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Overview:
+
+CHERRY B.UNLIMITED AES is a wireless desktop set consisting of a
+mouse and a keyboard.
+
+The manufacturer describes the product as follows (see [1]):
+
+"CHERRY B. UNLIMITED AES combines secure data transmission and an
+advanced energy supply in a design which has been thought through to the
+very last detail. For high professional requirements and security both
+at home and in the workplace."
+
+Some of the key benefits of CHERRY B.UNLIMITED AES are (see [2]):
+
+* Data transmission using 128-bit encryption, complying to Advanced 
+  Encryption Standard (AES)
+* USB cable charging function for both keyboard & mouse - even when in
+  use
+* High-quality, pre-charged NiMH batteries from GP with a very low
+  self-discharge
+* Almost interference-free wireless 2.4 GHz technology (range of up to
+  10 metres)
+* 3-button mouse: infrared sensor and adjustable resolution
+  (1,000/2,000 dpi) with ergonomic side panels
+* Multi-station capability operation of several wireless products in
+  one room
+* Easy to install, requiring no technical knowledge
+* Mini USB receiver
+* Keyboard awarded the "Blauer Engel" environmental seal
+
+Due to an insecure implementation of the encrypted data communication,
+the wireless keyboard CHERRY B.UNLIMITED AES is prone to keystroke
+injection attacks.
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Vulnerability Details:
+
+The SySS GmbH found out that the wireless keyboard CHERRY B.UNLIMITED 
+AES is prone to keystroke injection attacks.  
+
+An attacker can sniff the AES-encrypted data packets of the 2.4 GHz
+radio communication sent by the keyboard to the receiver (USB dongle)
+and identify key release data packets by means of time correlation.
+For example, the last sent data packet before a longer time period
+without any data communication usually is a key release packet.
+
+The plaintext of such key release data packets and the AES encryption
+using counter mode is known to an attacker by a previously performed
+analysis of an attacker-owned device (see SySS security advisory
+SYSS-2016-031).
+
+Due to the insecure implementation of the AES-encrypted data
+communication, an attacker can modify a previously sniffed encrypted
+key release data packet and transmit it to the CHERRY B.UNLIMITED AES
+USB dongle in order to inject arbitrary keystrokes of his choice.
+
+Thus, despite AES-encrypted data communication, an attacker is able to
+send arbitrary keystrokes to a victim's computer system. In this way, an
+attacker can remotely take control over the victim's computer that is
+operated with an affected CHERRY B.UNLIMITED AES wireless keyboard. 
+
+In combination with the replay attack described in the SySS security
+advisory SYSS-2016-031 (see [3]), a keystroke injection attack allows to
+remotely attack computer systems with an active screen lock, for example
+in order to install malware when the target system is unattended.
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Proof of Concept (PoC):
+
+The SySS GmbH could successfully perform keystroke injection attacks
+against the wireless keyboard CHERRY B.UNLIMITED AES using an in-house
+developed software tool in combination with the USB radio dongle
+Crazyradio PA (see [4]).
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Solution:
+
+According to information from the manufacturer Cherry GmbH, the reported
+security issue will currently not be fixed in affected products.
+
+The written statement in German from Cherry GmbH regarding this and other
+reported security issues is:
+
+"Nach Prüfung der von Ihnen festgestellten 'Sicherheitsschwachstellen'
+haben wir uns dazu entschlossen, die AES Verschlüsselung bis auf weiters
+nicht weiter mit den Produkt zu promoten. Derzeit arbeiten wir an einem
+Nachfolgeprodukt. Wie bisher, empfehlen wir Kunden mit hohen
+Sicherheitsanfordungen ein kabelgebundenes Produkt zu verwenden.
+Je nach Anforderung, auch mit CC-Zertifizierung."
+
+The English translation of this statement is:
+
+"We have examined the 'security flaws' you reported to us. As a result,
+we decided, until further notice, to no longer refer to AES encryption
+in order to promote the affected product. At the moment, we are
+currently working on a successor product. As we already did in the past,
+we recommend to our customers having particularly high security demands
+using wired products which, depending on the requirements, should be 
+CC certified."
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Disclosure Timeline:
+
+2016-05-04: Vulnerability reported to manufacturer
+2016-05-24: Response from manufacturer with information about
+            the reported security issue and rescheduling of the
+            publication date in agreement with the manufacturer
+2016-07-04: Received written statement from manufacturer concerning the
+            reported security issue
+2016-07-29: Public release of the security advisory
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+References:
+
+[1] Data sheet for CHERRY B.UNLIMITED AES
+    http://cherry.de/PDF/EN_CHERRY_B_UNLIMITED_AES.pdf
+[2] Product website for CHERRY B.UNLIMITED AES
+    http://cherry.de/cid/wireless_keyboards_CHERRY_B_UNLIMITED_AES.htm?rdeLocaleAttr=en&WT.mc_id=
+[3] SySS Security Advisory SYSS-2016-031
+    https://www.syss.de/fileadmin/dokumente/Publikationen/Advisories/SYSS-2016-031.txt
+[4] Product website for Crazyradio PA
+    https://www.bitcraze.io/crazyradio-pa/
+[5] SySS Security Advisory SYSS-2016-038
+    https://www.syss.de/fileadmin/dokumente/Publikationen/Advisories/SYSS-2016-038.txt
+[6] SySS Responsible Disclosure Policy
+    https://www.syss.de/en/responsible-disclosure-policy/
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Credits:
+
+This security vulnerability was found by Matthias Deeg and Gerhard
+Klostermeier of the SySS GmbH.
+
+E-Mail: matthias.deeg (at) syss.de
+Public Key: https://www.syss.de/fileadmin/dokumente/Materialien/PGPKeys/Matthias_Deeg.asc
+Key fingerprint = D1F0 A035 F06C E675 CDB9 0514 D9A4 BF6A 34AD 4DAB
+
+E-Mail: gerhard.klostermeier (at) syss.de
+Public Key: https://www.syss.de/fileadmin/dokumente/PGPKeys/Gerhard_Klostermeier.asc
+Key fingerprint = 8A9E 75CC D510 4FF6 8DB5 CC30 3802 3AAB 573E B2E7
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Disclaimer:
+
+The information provided in this security advisory is provided "as is" 
+and without warranty of any kind. Details of this security advisory may 
+be updated in order to provide as accurate information as possible. The
+latest version of this security advisory is available on the SySS Web 
+site.
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Copyright:
+
+Creative Commons - Attribution (by) - Version 3.0
+URL: http://creativecommons.org/licenses/by/3.0/deed.en
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2
+
+iQIcBAEBCgAGBQJXmxoTAAoJENmkv2o0rU2r1A4P/0TERoYNcGOu1vWfLNiqjd2J
+UlgdFL7NuirPVrZHeklMis+f4ZnhhckngSiXssSJFYPL8wyaPlFoD/l7St5a+at0
+qb+DR0T2zcIwqRZI0SI2PM/PxIZQ+8YDvPUZ+U/KyCt2hQp7GKhHzzp3h2OYn8kX
+Ymebq1N1HWSQjlusFCDKwqn2+dW0IKaBHz0lEy7a8E65J5DtwZ5oaqP7g3MtkJMP
+2Nxr/vTbsI7mjQV97L1ytcpRMkxq+If+fwZFh890p7jxE1Xm3DDFR/YkhfwJUSVw
+Oi5KguB4LkWkrdDG5azI2/fCZySL4joxilHvaDAZw12jPFie1RP/sC/oQ4/dPi+C
+dxFLwSnNB7LrhwqGfyKiY8DQFYpVWM1a5UGLIAeswkHxP6Vm0bLfd/11LszneWyX
+/MyFluILLrb17H+uD0L84FnGlbryNzZPgH5aQ8ArPhXiS5tdhhtO2mo4TTKuZIzd
+PEaZd+t6lmjhM2HBt+BDX7It8Lof87rkii4XiMgXCL14sdiRYmJKc2bbNzT0Oguk
+s5WJ6oVeg8uOWZxi8kyE10GGvv/UWi4z8XGsHK1OUd5AwDOlhVxlKxD3gaRNuE8n
+Nzykms5uLBVArmieUkQRRX+B4YZXV+6vc/q2x3gq/jnOUI06+DPuxfyim7me3sxQ
+mahqTr9dZhk7IJq6G7jc
+=NjTx
+-----END PGP SIGNATURE-----

@@ -1,0 +1,157 @@
+﻿-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA512
+
+Advisory ID: SYSS-2016-074
+Product: Wireless Presenter R400
+Manufacturer: Logitech
+Affected Version(s): Model R-R0008
+Tested Version(s): Model R-R0008
+Vulnerability Type: Insufficient Verification of Data Authenticity (CWE-345)
+                    Keystroke Injection Vulnerability
+Risk Level: High
+Solution Status: Open
+Manufacturer Notification: 2016-08-12
+Solution Date: -
+Public Disclosure: 2016-10-12
+CVE Reference: Not yet assigned
+Authors of Advisory: Matthias Deeg (SySS GmbH)
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Overview:
+
+Logitech R400 is a wireless presenter using 2.4 GHz radio communication.
+
+The manufacturer describes the product as follows (see [1]):
+
+"Intuitive controls and red laser pointer make presentations a snap, 
+even in the darkest auditoriums."
+
+Due to unencrypted and unauthenticated data communication, the wireless
+presenter Logitech R400 is prone to keystroke injection attacks.
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Vulnerability Details:
+
+The SySS GmbH found out that the wireless presenter Logitech R400 is
+vulnerable to keystroke injection attacks.
+
+An attacker can analyze the unencrypted and unauthenticated  data
+packets of the 2.4 GHz radio communication sent by the wireless
+presenter to the receiver (USB dongle) in order to learn the used
+protocol. By knowing the used data protocol, it is possible to inject
+packets in the data communication that are actually interpreted as
+keystrokes by the receiver on the target system.
+
+Thus, an attacker is able to send arbitrary keystrokes to a victim's
+computer system, for example in order to install malware when the target
+system is unattended. In this way, an attacker can remotely take control
+over the victim's computer that is operated with an affected receiver of
+a Logitech R400 wireless presenter. 
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Proof of Concept (PoC):
+
+The SySS GmbH could successfully perform keystroke injection attacks
+against the wireless presenter Logitech R400 using an in-house developed
+software tool in combination with the USB radio dongle Crazyradio PA 
+and the nrf-research-firmware by Bastille Networks Internet Security
+(see [2] and [3]).
+
+The following output of the developed proof-of-concept software tool
+illustrates a successful attack:
+
+# python logitech_presenter.py -a 77:E3:96:AC:07
+        _____  ______ ___  _  _     _____  _                      _  
+       |  __ \|  ____|__ \| || |   |  __ \| |                    | |     
+  _ __ | |__) | |__     ) | || |_  | |__) | | __ _ _   _ ___  ___| |_       
+ | '_ \|  _  /|  __|   / /|__   _| |  ___/| |/ _` | | | / __|/ _ \ __|    
+ | | | | | \ \| |     / /_   | |   | |    | | (_| | |_| \__ \  __/ |_   
+ |_| |_|_|  \_\_|    |____|  |_|   |_|    |_|\__,_|\__, |___/\___|\__|
+                                                    __/ |             
+                                                   |___/              
+Logitech Wireless Presenter Attack Tool v1.0 by Matthias Deeg - SySS GmbH (c) 2016
+[*] Configure nRF24 radio
+[*] Scanning for Logitech wireless presenter ...
+[+] Found nRF24 device with address 77:E3:96:AC:07 on channel 32
+[*] Press <CTRL+C> to start keystroke injection
+^C
+[*] Start keystroke injection ...
+[*] Done.
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Solution:
+
+The SySS GmbH is not aware of a solution for this reported security
+vulnerability.
+
+For further information please contact the manufacturer.
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Disclosure Timeline:
+
+2016-08-12: Vulnerability reported to manufacturer
+2016-10-12: Public release of the security advisory
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+References:
+
+[1] Product website for Logitech R400
+    http://www.logitech.com/en-us/product/wireless-presenter-r400
+[2] Product website for Crazyradio PA
+    https://www.bitcraze.io/crazyradio-pa/
+[3] Bastille's nRF24 research firmware and tools
+    https://github.com/BastilleResearch/nrf-research-firmware
+[4] SySS Security Advisory SYSS-2016-074
+    https://www.syss.de/fileadmin/dokumente/Publikationen/Advisories/SYSS-2016-074.txt
+[5] SySS Responsible Disclosure Policy
+    https://www.syss.de/en/responsible-disclosure-policy/
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Credits:
+
+This security vulnerability was found by Matthias Deeg of the SySS GmbH.
+
+E-Mail: matthias.deeg (at) syss.de
+Public Key: https://www.syss.de/fileadmin/dokumente/Materialien/PGPKeys/Matthias_Deeg.asc
+Key fingerprint = D1F0 A035 F06C E675 CDB9 0514 D9A4 BF6A 34AD 4DAB
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Disclaimer:
+
+The information provided in this security advisory is provided "as is" 
+and without warranty of any kind. Details of this security advisory may 
+be updated in order to provide as accurate information as possible. The
+latest version of this security advisory is available on the SySS Web 
+site.
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Copyright:
+
+Creative Commons - Attribution (by) - Version 3.0
+URL: http://creativecommons.org/licenses/by/3.0/deed.en
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIcBAEBCgAGBQJX/eGoAAoJENmkv2o0rU2rq2wP/3CPi4lAIDyplT7fRqeDRd+A
+75//t6SYlujol+vAfeSTXu30d1xrmueiRf2/nYF9C7m/Gi1zlOcCGP53oxUoElst
+elC3dUjKtumYzI83Kf+1CbARXS3OhnwKespQ5RwQcC2c6akoF+hdXkcCuYkQHuLO
+QFHGHblBIFWiFTeZ0z+iIvBjXEqnAKiqaiDRzcTuzMXyZFQxraxUMtz0cmcp8r/r
+n9otgHFGZhJ6a6lJieh5a0uy6DcZ2+ow6++Q26QfJ94rmrIOSZSbnmJngLV/9g5D
+Py2GQY2K961zf6AIFKYzRSIv1+fjHoEdXo5zQc1o1OJIvjLQXXOJT/41a4Za8kVn
+1KRaUcvl3Ue1mIbJp5bnCjU+3DNCLyaW385Gyeh4xH+A/zGnA9BRiIPiivV2OqOY
+jiVc1qpcSBwOiIFPm+OeUmSvb4NNqCDZJ5Y21vmy4EAKrxuB/kt7vUkiiKHRlCCb
+Ehi9ndpuJaAK3p1RTDKv/0ltl7lrFk8bUnWXUpM1zZS/zi4kuaw/lwhODD3Hn8Ra
+f3fqDiXz1L+/hk6RQKP1/K7pCDmc3AZEcQC1PvHkrISpP+03ODo7ukjlW2/wd0jS
+gcuADp/NUOOM4iG3qIdjtqaIw6Q44wG6InsQzYE5j6mMSEorf048sS3FdYnh0sFj
+cNU3g7oVMMq6fl7qMqWD
+=Uv4Y
+-----END PGP SIGNATURE-----

@@ -1,0 +1,177 @@
+﻿-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA512
+
+Advisory ID: SYSS-2016-058
+Product: CHERRY B.UNLIMITED AES
+Manufacturer: Cherry GmbH
+Affected Version(s): JD-0400EU-2/01
+Tested Version(s): JD-0400EU-2/01
+Vulnerability Type: Insufficient Verification of Data Authenticity (CWE-345)
+                    Mouse Spoofing Attack
+Risk Level: Medium
+Solution Status: Open
+Manufacturer Notification: 2016-06-28
+Solution Date: -
+Public Disclosure: 2016-09-30
+CVE Reference: Not yet assigned
+Authors of Advisory: Matthias Deeg and Gerhard Klostermeier (SySS GmbH)
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Overview:
+
+CHERRY B.UNLIMITED AES is a wireless desktop set consisting of a
+mouse and a keyboard.
+
+The manufacturer describes the product as follows (see [1]):
+
+"CHERRY B. UNLIMITED AES combines secure data transmission and an
+advanced energy supply in a design which has been thought through to the
+very last detail. For high professional requirements and security both
+at home and in the workplace."
+
+Some of the key benefits of CHERRY B.UNLIMITED AES are (see [2]):
+
+* Data transmission using 128-bit encryption, complying to Advanced 
+  Encryption Standard (AES)
+* USB cable charging function for both keyboard & mouse - even when in
+  use
+* High-quality, pre-charged NiMH batteries from GP with a very low
+  self-discharge
+* Almost interference-free wireless 2.4 GHz technology (range of up to
+  10 metres)
+* 3-button mouse: infrared sensor and adjustable resolution
+  (1,000/2,000 dpi) with ergonomic side panels
+* Multi-station capability operation of several wireless products in
+  one room
+* Easy to install, requiring no technical knowledge
+* Mini USB receiver
+* Keyboard awarded the "Blauer Engel" environmental seal
+
+Due to unencrypted and unauthenticated mouse data communication, the
+wireless desktop set CHERRY B.UNLIMITED AES is prone to mouse spoofing
+attacks.
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Vulnerability Details:
+
+The SySS GmbH found out that the mouse of the wireless desktop set
+CHERRY B.UNLIMITED AES is prone to spoofing attacks, as the mouse
+data communication is unencrypted and unauthenticated.
+
+An attacker can analyze the unencrypted mouse data packets of the 2.4
+GHz radio communication sent by the mouse to the receiver (USB dongle)
+in order to learn the used protocol. By knowing the used mouse data
+protocol, it is possible to spoof mouse actions like mouse movements or
+mouse clicks by sending forged data packets.
+
+Thus, an attacker is able to remotely control the mouse pointer of a
+target system that is operated with the wireless desktop set CHERRY
+B.UNLIMITED AES. If the graphical user interface of the victim's system
+is unlocked, an attacker can for example send a list of mouse actions
+that start the virtual on-screen keyboard of the operating system and
+execute arbitrary commands in the context of the currently logged in
+user, for instance a download and execute attack vector.
+
+As the attacker may not have an unobstructed view to the target system's
+screen and may not know the used operating system, the screen resolution,
+or the current mouse settings, this kind mouse spoofing attack is based
+on heuristics. But concerning an unlocked and unattended system, an
+attacker can simply try different attack vectors for different target
+system configurations sequentially.
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Proof of Concept (PoC):
+
+The SySS GmbH could successfully perform mouse spoofing attacks against
+a target system operated with the wireless desktop set CHERRY
+B.UNLIMITED AES using an in-house developed software tool in combination
+with the USB radio dongle Crazyradio PA (see [3]).
+
+A proof-of-concept mouse spoofing attack resulting in remote code
+execution using the SySS software tool Radioactive Mouse is demonstrated
+in a video (see [4]).
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Solution:
+
+The SySS GmbH is not aware of a solution for this reported security
+vulnerability.
+
+For further information please contact the manufacturer.
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Disclosure Timeline:
+
+2016-06-28: Vulnerability reported to manufacturer
+2016-09-30: Public release of the security advisory
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+References:
+
+[1] Data sheet for CHERRY B.UNLIMITED AES
+    http://cherry.de/PDF/EN_CHERRY_B_UNLIMITED_AES.pdf
+[2] Product website for CHERRY B.UNLIMITED AES
+    http://cherry.de/cid/wireless_keyboards_CHERRY_B_UNLIMITED_AES.htm?rdeLocaleAttr=en&WT.mc_id=
+[3] Product website for Crazyradio PA
+    https://www.bitcraze.io/crazyradio-pa/
+[4] SySS Proof-of-Concept Mouse Spoofing Attack Video
+    https://www.youtube.com/watch?v=PkR8EODee44
+[5] SySS Security Advisory SYSS-2016-058
+    https://www.syss.de/fileadmin/dokumente/Publikationen/Advisories/SYSS-2016-058.txt
+[6] SySS Responsible Disclosure Policy
+    https://www.syss.de/en/responsible-disclosure-policy/
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Credits:
+
+This security vulnerability was found by Matthias Deeg and Gerhard
+Klostermeier of the SySS GmbH.
+
+E-Mail: matthias.deeg (at) syss.de
+Public Key: https://www.syss.de/fileadmin/dokumente/Materialien/PGPKeys/Matthias_Deeg.asc
+Key fingerprint = D1F0 A035 F06C E675 CDB9 0514 D9A4 BF6A 34AD 4DAB
+
+E-Mail: gerhard.klostermeier (at) syss.de
+Public Key: https://www.syss.de/fileadmin/dokumente/PGPKeys/Gerhard_Klostermeier.asc
+Key fingerprint = 8A9E 75CC D510 4FF6 8DB5 CC30 3802 3AAB 573E B2E7
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Disclaimer:
+
+The information provided in this security advisory is provided "as is" 
+and without warranty of any kind. Details of this security advisory may 
+be updated in order to provide as accurate information as possible. The
+latest version of this security advisory is available on the SySS Web 
+site.
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Copyright:
+
+Creative Commons - Attribution (by) - Version 3.0
+URL: http://creativecommons.org/licenses/by/3.0/deed.en
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIcBAEBCgAGBQJX7ilTAAoJENmkv2o0rU2rPzIP+wXaPWtlbQvNc/cHje8KG+T9
+uxktTLN8F/cYoND0niUejBp75CGjMC+9JTzv5B61iPko40ebxMB6RbrClSzNI1K9
+CgrO2ZejqAgVp8tHutsTTUy+m1Me3YrpZwv4Tv1LxFWsorjJh1nfutXbEL0p2cSW
+thr57PtYmj+XVFKGYn9R9c54z1kL7iqwddQIWh+vzYpnCgkzd5ANgRHKYChSr+rf
+ZjnLlzsJqtFeKCIyJIdmqvZPE3RMM5mw2BIK11PPB+iRpxVOhAoHBLgNmD1xs82T
+XJKqQidCi/2aoMuZ/9phDVOk2+Q46sic5wkiPUYxrKYTdVrCXx0q3tG3wgOn9lPZ
+dc1Xkvd1uuNcklQHrqwe2MwuHZuhfKqrQzEoYRYchqS3jQgnNFTKE3BMSv84bLHj
+GVhdqLurn9/9LVdW38ZUJoLPj53eEFtyAxRzyaAU99OFD1WnRg+UYjpWjee//GJ6
+WLaXmqAzxZ6nL+wgsa5zVP9WKM7XDBwOlg7SAnBmlZpqyI5iCz/hUqOiRDB22FV9
+r8d2wTvgfuX32qTYAq6ZFkCA5ogcg5oy479dtnLC6qSwY0BIAR4ND4DT1YLXLrzs
+0cE4Zps/jvOERxKiLz7ID1q31rLHcPAaK/gun9hHhamVGxDZm0GfjJUc+O2WI52y
+oTrTDSc5uVdQreLiR59R
+=3fbf
+-----END PGP SIGNATURE-----

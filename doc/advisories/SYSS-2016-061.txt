@@ -1,0 +1,158 @@
+﻿-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA512
+
+Advisory ID: SYSS-2016-061
+Product: PERIDUO-710W
+Manufacturer: Perixx Computer GmbH
+Affected Version(s): Part No. KG-1027
+Tested Version(s): Part No. KG-1027
+Vulnerability Type: Insufficient Verification of Data Authenticity (CWE-345)
+                    Mouse Spoofing Attack
+Risk Level: Medium
+Solution Status: Open
+Manufacturer Notification: 2016-06-28
+Solution Date: -
+Public Disclosure: 2016-09-30
+CVE Reference: Not yet assigned
+Authors of Advisory: Matthias Deeg and Gerhard Klostermeier (SySS GmbH)
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Overview:
+
+PERIDUO-710W is a wireless desktop set consisting of a mouse and a
+keyboard.
+
+The manufacturer describes the product as follows (see [1]):
+
+"PERIDUO can create flexible, convenient and wireless working
+environment with its design. PERIDUO offers a reliable 2.4GHz high
+frequency penetration, low interference, and omni-directional signal
+transmissions with 10Meters meters [sic] receiving distance." 
+
+Due to unencrypted and unauthenticated mouse data communication, the
+wireless desktop set PERIDUO-710W is prone to mouse spoofing attacks.
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Vulnerability Details:
+
+The SySS GmbH found out that the mouse of the wireless desktop set
+PERIDUO-710W is prone to spoofing attacks, as the mouse data
+communication is unencrypted and unauthenticated.
+
+An attacker can analyze the unencrypted mouse data packets of the 2.4
+GHz radio communication sent by the mouse to the receiver (USB dongle)
+in order to learn the used protocol. By knowing the used mouse data
+protocol, it is possible to spoof mouse actions like mouse movements or
+mouse clicks by sending forged data packets.
+
+Thus, an attacker is able to remotely control the mouse pointer of a
+target system that is operated with the wireless desktop set
+PERIDUO-710W. If the graphical user interface of the victim's system
+is unlocked, an attacker can for example send a list of mouse actions
+that start the virtual on-screen keyboard of the operating system and
+execute arbitrary commands in the context of the currently logged in
+user, for instance a download and execute attack vector.
+
+As the attacker may not have an unobstructed view to the target system's
+screen and may not know the used operating system, the screen resolution,
+or the current mouse settings, this kind mouse spoofing attack is based
+on heuristics. But concerning an unlocked and unattended system, an
+attacker can simply try different attack vectors for different target
+system configurations sequentially.
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Proof of Concept (PoC):
+
+The SySS GmbH could successfully perform mouse spoofing attacks against
+a target system operated with the wireless desktop set PERIDUO-710W
+using an in-house developed software tool in combination with the USB
+radio dongle Crazyradio PA (see [3]).
+
+A proof-of-concept mouse spoofing attack resulting in remote code
+execution using the SySS software tool Radioactive Mouse is demonstrated
+in a video (see [4]).
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Solution:
+
+The SySS GmbH is not aware of a solution for this reported security
+vulnerability.
+
+For further information please contact the manufacturer.
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Disclosure Timeline:
+
+2016-06-28: Vulnerability reported to manufacturer
+2016-09-30: Public release of the security advisory
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+References:
+
+[1] User manual for Perixx PERIDUO-710W
+    http://perixx.com/en/service/Perixx_Manual/DUO/PERIDUO-710_manual.pdf
+[2] Product website for Perixx PERIDUO-710W
+    http://perixx.com/en/products/perixx-pro-11.html
+[3] Product website for Crazyradio PA
+    https://www.bitcraze.io/crazyradio-pa/
+[4] SySS Proof-of-Concept Mouse Spoofing Attack Video
+    https://www.youtube.com/watch?v=PkR8EODee44
+[5] SySS Security Advisory SYSS-2016-061
+    https://www.syss.de/fileadmin/dokumente/Publikationen/Advisories/SYSS-2016-061.txt
+[6] SySS Responsible Disclosure Policy
+    https://www.syss.de/en/responsible-disclosure-policy/
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Credits:
+
+This security vulnerability was found by Matthias Deeg and Gerhard
+Klostermeier of the SySS GmbH.
+
+E-Mail: matthias.deeg (at) syss.de
+Public Key: https://www.syss.de/fileadmin/dokumente/Materialien/PGPKeys/Matthias_Deeg.asc
+Key fingerprint = D1F0 A035 F06C E675 CDB9 0514 D9A4 BF6A 34AD 4DAB
+
+E-Mail: gerhard.klostermeier (at) syss.de
+Public Key: https://www.syss.de/fileadmin/dokumente/PGPKeys/Gerhard_Klostermeier.asc
+Key fingerprint = 8A9E 75CC D510 4FF6 8DB5 CC30 3802 3AAB 573E B2E7
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Disclaimer:
+
+The information provided in this security advisory is provided "as is" 
+and without warranty of any kind. Details of this security advisory may 
+be updated in order to provide as accurate information as possible. The
+latest version of this security advisory is available on the SySS Web 
+site.
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Copyright:
+
+Creative Commons - Attribution (by) - Version 3.0
+URL: http://creativecommons.org/licenses/by/3.0/deed.en
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIcBAEBCgAGBQJX7imeAAoJENmkv2o0rU2r8PsP/35/jdDnSyrslpe0UWbPa2p4
+v3UfMM3wrjHNcVw6ksrkd6OHOonYdxrXx0Ij+jOv/5PCXx63z99ymHBO2xe800nW
+FTfRVEGoQ0jrGgzSsl1ShJerksD4j1sM8R9CJOUTmjyZYSJkCs0amnsR72qm78HO
+9P4isZ07UU/k8VKUAPy4cTCLQQHN7UpYnx5ZivQZDmblazYDj/g+XhQ7j6m4F1i+
+FKYOoEDYl/aXxp/HMVXi/UxqNZz0uj+Wy5iwQErHvQKbUvx8mM7IxZSIja8U1CCB
+Q58xzumV1HCa1XaHLP2VZbzOyu3xcpgQvK7MRVTYALJ0QR1TzB6IkfRrI7PejQc0
+Omhahfe+lJ3WuWXz0hHADuSRZej9yZCf6w2LRX1tpxx2J5WUDvXK2Ljz4IFf2fSh
+UR/8TozJCQQkpllPIB33XSdI8DYGZlEr5xJNOoCyOKag6alvkPPHZqrhJclL3U3H
+2Zy9OCagLCzOJjb+h8vrcqX7pALjlhPrxft8AbpxjOIWCnCm61K5EwE+v5aIZocV
+5QbvPX/ozCT/C0cQcyB0GduFSeNOEWf24kI23d8wV06TUky1cTXypqaBCly9U4iI
+Nrn+38LWh6pMz15aGm70KlOGVM7pPg1Fc817wmzxPVfAh3naQwZWVXeM+XGxS1be
+IHnJnWz0DeEhUQHl8CDt
+=bKdw
+-----END PGP SIGNATURE-----

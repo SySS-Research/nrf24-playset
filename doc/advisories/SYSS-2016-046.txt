@@ -1,0 +1,148 @@
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA512
+
+Advisory ID: SYSS-2016-046
+Product: PERIDUO-710W
+Manufacturer: Perixx Computer GmbH
+Affected Version(s): Part No. KG-1027
+Tested Version(s): Part No. KG-1027
+Vulnerability Type: Cryptographic Issues (CWE-310)
+                    Missing Protection against Replay Attacks
+Risk Level: Medium
+Solution Status: Open
+Manufacturer Notification: 2016-05-27
+Solution Date: -
+Public Disclosure: 2016-07-29
+CVE Reference: Not yet assigned
+Authors of Advisory: Matthias Deeg and Gerhard Klostermeier (SySS GmbH)
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Overview:
+
+PERIDUO-710W is a wireless desktop set consisting of a mouse and a
+keyboard.
+
+The manufacturer describes the product as follows (see [1]):
+
+"PERIDUO can create flexible, convenient and wireless working
+environment with its design. PERIDUO offers a reliable 2.4GHz high
+frequency penetration, low interference, and omni-directional signal
+transmissions with 10Meters meters [sic] receiving distance." 
+
+Due to an insecure implementation of the encrypted data communication,
+the wireless keyboard PERIDUO-710W is prone to replay attacks.
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Vulnerability Details:
+
+The SySS GmbH found out that the wireless keyboard PERIDUO-710W is prone
+to replay attacks.
+
+An attacker can sniff the AES-encrypted data packets of the 2.4 GHz
+radio communication sent by the keyboard to the transceiver (USB dongle)
+and replay the recorded communication data at will causing the same
+effect as the original data communication.
+
+A replay attack against the keyboard can, for example, be used to gain
+unauthorized access to a computer system that is operated with a
+vulnerable PERIDUO-710W keyboard. In this attack scenario, an attacker
+records the radio communication during a password-based user
+authentication of his or her victim, for instance during a login to the
+operating system or during unlocking a screen lock. At an opportune
+moment when the victim's computer system is unattended, the attacker
+approaches the victim's computer and replays the previously recorded
+AES-encrypted data communication for the password-based user
+authentication and thereby gets unauthorized access to the victim's
+system.
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Proof of Concept (PoC):
+
+The SySS GmbH could successfully perform a replay attack as described
+in the previous section using the USB radio dongle Crazyradio PA (see
+[3]) and an in-house developed proof-of-concept software tool.
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Solution:
+
+The SySS GmbH is not aware of a solution for this reported security
+vulnerability.
+
+For further information please contact the manufacturer.
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Disclosure Timeline:
+
+2016-05-27: Vulnerability reported to manufacturer
+2016-06-06: Vulnerability reported to manufacturer again
+2016-07-29: Public release of the security advisory
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+References:
+
+[1] User manual for Perixx PERIDUO-710W
+    http://perixx.com/en/service/Perixx_Manual/DUO/PERIDUO-710_manual.pdf
+[2] Product website for Perixx PERIDUO-710W
+    http://perixx.com/en/products/perixx-pro-11.html
+[3] Product website for Crazyradio PA
+    https://www.bitcraze.io/crazyradio-pa/
+[4] SySS Security Advisory SYSS-2016-046
+    https://www.syss.de/fileadmin/dokumente/Publikationen/Advisories/SYSS-2016-046.txt
+[5] SySS Responsible Disclosure Policy
+    https://www.syss.de/en/responsible-disclosure-policy/
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Credits:
+
+This security vulnerability was found by Matthias Deeg and Gerhard
+Klostermeier of the SySS GmbH.
+
+E-Mail: matthias.deeg (at) syss.de
+Public Key: https://www.syss.de/fileadmin/dokumente/Materialien/PGPKeys/Matthias_Deeg.asc
+Key fingerprint = D1F0 A035 F06C E675 CDB9 0514 D9A4 BF6A 34AD 4DAB
+
+E-Mail: gerhard.klostermeier (at) syss.de
+Public Key: https://www.syss.de/fileadmin/dokumente/PGPKeys/Gerhard_Klostermeier.asc
+Key fingerprint = 8A9E 75CC D510 4FF6 8DB5 CC30 3802 3AAB 573E B2E7
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Disclaimer:
+
+The information provided in this security advisory is provided "as is" 
+and without warranty of any kind. Details of this security advisory may 
+be updated in order to provide as accurate information as possible. The
+latest version of this security advisory is available on the SySS Web 
+site.
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Copyright:
+
+Creative Commons - Attribution (by) - Version 3.0
+URL: http://creativecommons.org/licenses/by/3.0/deed.en
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2
+
+iQIcBAEBCgAGBQJXmxotAAoJENmkv2o0rU2rxBsP/0mBt1vod7n82h14njEpPjko
+E4UiymaEjkSEMGXsxuboJOfLkCZBWbwPyoSE0EnvcLTXMGCf88ccLCOZqGQi5ej/
+kuP0gVH0OYr7H/9/ZUlMpH7riSMgaLadQqhlAxDrWq3XMwgYLgTRmCsIX03ctV3p
+sTdH7+r2MmU8qfwcnQMTtxo3OsI8KM1wufXMBlHEkZD3ZGUF6tl3naUXQDEWJs4P
+e6KhaAQznN8tyq0wJ3qrG4PbITgii6vTgjOI/rRMChfcD8EUbY9UdynlKWUIwT8i
+jI0wnJFVsD/9gSrf7qKMyaxl6uYQgukRbV8AYP7cfntC8GghqKeSduyJnlacQxOV
++cNd8rxOxv87kkdE+neVsfX9gOj02aqlLqMp80CSX43Y/7sdJd2vvs3LBR9/Duih
+4iIjTt4Ol2kQiXrK3QI1+DD+JnvyuMdNnzJPIZzSm1R0Mk7AB6KInK7A1+MMN2yQ
+uWpUQVZpXp94L/lULM4uQB/DiCeyOE2RzARFK/rmLfBZdVFZKY6yeXh1hV3gyGmk
+McvGVduIbLI516Y+ot7l21tZGEDsf+Ibby99WUnUwVV4sjYuVRt0a/00beVZjVg2
++rmhEA6P09Eaj8twFMo/n//KV3sp+j1UJiin6BGouFxGoQqUuipLaQ8/q6g7ZP5x
+G9MbhZhHkoeHiXvRBgBk
+=Oq3W
+-----END PGP SIGNATURE-----

@@ -1,0 +1,163 @@
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA512
+
+Advisory ID: SYSS-2016-047
+Product: PERIDUO-710W
+Manufacturer: Perixx Computer GmbH
+Affected Version(s): Part No. KG-1027
+Tested Version(s): Part No. KG-1027
+Vulnerability Type: Cryptographic Issues (CWE-310)
+                    Keystroke Injection Vulnerability
+Risk Level: High
+Solution Status: Open
+Manufacturer Notification: 2016-05-27
+Solution Date: -
+Public Disclosure: 2016-07-29
+CVE Reference: Not yet assigned
+Authors of Advisory: Matthias Deeg and Gerhard Klostermeier (SySS GmbH)
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Overview:
+
+PERIDUO-710W is a wireless desktop set consisting of a mouse and a
+keyboard.
+
+The manufacturer describes the product as follows (see [1]):
+
+"PERIDUO can create flexible, convenient and wireless working
+environment with its design. PERIDUO offers a reliable 2.4GHz high
+frequency penetration, low interference, and omni-directional signal
+transmissions with 10Meters meters [sic] receiving distance." 
+
+Due to an insecure implementation of the encrypted data communication,
+the wireless keyboard PERIDUO-710W is prone to keystroke injection
+attacks.
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Vulnerability Details:
+
+The SySS GmbH found out that the wireless keyboard PERIDUO-710W is prone
+to keystroke injection attacks.
+
+An attacker can sniff the AES-encrypted data packets of the 2.4 GHz
+radio communication sent by the keyboard to the transceiver (USB dongle)
+and identify key release data packets by means of time correlation.
+For example, the last sent data packet before a longer time period
+without any data communication usually is a key release packet.
+
+The plaintext of such key release data packets and the AES encryption
+using counter mode is known to an attacker by a previously performed
+analysis of an attacker-owned device (see [3], SySS security advisory
+SYSS-2016-045).
+
+Due to the insecure implementation of the AES-encrypted data
+communication, an attacker can modify a previously sniffed encrypted
+key release data packet and transmit it to the PERIDUO-710W USB dongle in
+order to inject arbitrary keystrokes.
+
+Thus, despite AES-encrypted data communication, an attacker is able to
+send arbitrary keystrokes to a victim's computer system. In this way, an
+attacker can remotely take control over the victim's computer that is
+operated with an affected PERIDUO-710W wireless keyboard. 
+
+In combination with the replay attack described in the SySS security
+advisory SYSS-2016-046 (see [4]), a keystroke injection attack allows to
+remotely attack computer systems with an active screen lock, for example
+in order to install malware when the target system is unattended.
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Proof of Concept (PoC):
+
+The SySS GmbH could successfully perform keystroke injection attacks
+against the wireless keyboard PERIDUO-710W using an in-house developed
+software tool in combination with the USB radio dongle Crazyradio PA
+(see [5]).
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Solution:
+
+The SySS GmbH is not aware of a solution for this reported security
+vulnerability.
+
+For further information please contact the manufacturer.
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Disclosure Timeline:
+
+2016-05-27: Vulnerability reported to manufacturer
+2016-06-06: Vulnerability reported to manufacturer again
+2016-07-29: Public release of the security advisory
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+References:
+
+[1] User manual for Perixx PERIDUO-710W
+    http://perixx.com/en/service/Perixx_Manual/DUO/PERIDUO-710_manual.pdf
+[2] Product website for Perixx PERIDUO-710W
+    http://perixx.com/en/products/perixx-pro-11.html
+[3] SySS Security Advisory SYSS-2016-045
+    https://www.syss.de/fileadmin/dokumente/Publikationen/Advisories/SYSS-2016-045.txt
+[4] SySS Security Advisory SYSS-2016-046
+    https://www.syss.de/fileadmin/dokumente/Publikationen/Advisories/SYSS-2016-046.txt
+[5] Product website for Crazyradio PA
+    https://www.bitcraze.io/crazyradio-pa/
+[6] SySS Security Advisory SYSS-2016-047
+    https://www.syss.de/fileadmin/dokumente/Publikationen/Advisories/SYSS-2016-047.txt
+[7] SySS Responsible Disclosure Policy
+    https://www.syss.de/en/responsible-disclosure-policy/
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Credits:
+
+This security vulnerability was found by Matthias Deeg and Gerhard
+Klostermeier of the SySS GmbH.
+
+E-Mail: matthias.deeg (at) syss.de
+Public Key: https://www.syss.de/fileadmin/dokumente/Materialien/PGPKeys/Matthias_Deeg.asc
+Key fingerprint = D1F0 A035 F06C E675 CDB9 0514 D9A4 BF6A 34AD 4DAB
+
+E-Mail: gerhard.klostermeier (at) syss.de
+Public Key: https://www.syss.de/fileadmin/dokumente/PGPKeys/Gerhard_Klostermeier.asc
+Key fingerprint = 8A9E 75CC D510 4FF6 8DB5 CC30 3802 3AAB 573E B2E7
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Disclaimer:
+
+The information provided in this security advisory is provided "as is" 
+and without warranty of any kind. Details of this security advisory may 
+be updated in order to provide as accurate information as possible. The
+latest version of this security advisory is available on the SySS Web 
+site.
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Copyright:
+
+Creative Commons - Attribution (by) - Version 3.0
+URL: http://creativecommons.org/licenses/by/3.0/deed.en
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2
+
+iQIcBAEBCgAGBQJXmzORAAoJENmkv2o0rU2rRVMP/isuzfvXCpH7XjaTGjit3QYf
+2DZEwhImzTQnhqtRGnZpQFadK74V5CRgcNzVvEgrLMtBiOeT5OQ934JQb/yvflky
+yuA7Iq+Q+EKpXD0DCk3rnKRqjw3FPUAIih15CvBOHuVSIE06dmfwfwB/Cr1EU+DV
+txLFwyw4Ocr6VsTluPWzDKL4YQNPVSHo56hDSCQDpcQ8cnFK1QpTcS//vC0+YO0V
+m3pGs6c0ZRhs82QiL73p6BWaGvhZfWe6KvFe16osHLKoUNh3uqzE7g120kNRYgis
+9ZP5zTvIubOZestgd72lBnx3MDjJ/LQfjoCVTcrw0zk6C6IyV1QAyTTKGr5770bs
+/ZFX53mKGxChxF73tDt1J5AJaevE8ZxCLzeG/r5FxFV30oEjvbyFZxPSa72X8lUK
+1oYP/9nVrLW2zzC7OkJwOllL4bAjK2Qa+2CEweubBx8dGug5zRDBpbTy2Q6bJXy3
+G5Q0EYXH04xLnAbZ2rTPQNLTBv2+ocht7FsAiSUF51OPivxtIl1tjwwYFnjmuUA4
+8xffrhLxFj8YM8bEW+ntpeuh7rTazWljB3Ku7BlNgjGMhZWV5HL5XnUN4Q3ib4kv
+J7b7DKH7heHD1RBoSUR0zPAp8YyUTrwVf/u7iVUi5waQxbRRUmguApT6lmDfe4eM
+VSjLkipUFUlj/4eUpJ32
+=SVOu
+-----END PGP SIGNATURE-----

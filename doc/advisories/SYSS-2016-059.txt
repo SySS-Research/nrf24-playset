@@ -1,0 +1,153 @@
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA512
+
+Advisory ID: SYSS-2016-059
+Product: Microsoft Wireless Desktop 2000
+Manufacturer: Microsoft
+Affected Version(s): Ver. A
+Tested Version(s): Ver. A
+Vulnerability Type: Insufficient Verification of Data Authenticity (CWE-345)
+                    Mouse Spoofing Attack
+Risk Level: Medium
+Solution Status: Open
+Manufacturer Notification: 2016-06-28
+Solution Date: -
+Public Disclosure: 2016-07-29
+CVE Reference: Not yet assigned
+Authors of Advisory: Matthias Deeg and Gerhard Klostermeier (SySS GmbH)
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Overview:
+
+Microsoft Wireless Desktop 2000 is a wireless desktop set consisting of
+a mouse and a keyboard.
+
+The manufacturer describes the product as follows (see [1]):
+
+"This keyboard features Advanced Encryption Standard (AES) technology, 
+which is designed to help protect your information by encrypting your
+keystrokes. Each keyboard is permanently paired with its receiver at 
+the factory - no key information is ever shared over the air."
+
+Due to unencrypted and unauthenticated mouse data communication, the
+wireless desktop set Microsoft Wireless Desktop 2000 is prone to mouse
+spoofing attacks.
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Vulnerability Details:
+
+The SySS GmbH found out that the mouse of the wireless desktop set
+Microsoft Wireless Desktop 2000 is prone to spoofing attacks, as the
+mouse data communication is unencrypted and unauthenticated.
+
+An attacker can analyze the unencrypted mouse data packets of the 2.4
+GHz radio communication sent by the mouse to the receiver (USB dongle)
+in order to learn the used protocol. By knowing the used mouse data
+protocol, it is possible to spoof mouse actions like mouse movements or
+mouse clicks by sending forged data packets.
+
+Thus, an attacker is able to remotely control the mouse pointer of a
+target system that is operated with the wireless desktop set Microsoft
+Wireless Desktop 2000. If the graphical user interface of the victim's
+system is unlocked, an attacker can for example send a list of mouse
+actions that start the virtual on-screen keyboard of the operating
+system and execute arbitrary commands in the context of the currently
+logged in user, for instance a download and execute attack vector.
+
+As the attacker may not have an unobstructed view to the target system's
+screen and may know the used operating system, the screen resolution, or
+the current mouse settings, this kind mouse spoofing attack is based on
+heuristics. But concerning an unlocked and unattended system, an
+attacker can simply try different attack vectors for different target
+system configurations sequentially.
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Proof of Concept (PoC):
+
+The SySS GmbH could successfully perform mouse spoofing attacks against
+a target system operated with the wireless desktop set Microsoft
+Wireless Desktop 2000 using an in-house developed software tool in
+combination with the USB radio dongle Crazyradio PA (see [2]).
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Solution:
+
+The manufacturer Microsoft responded to the reported security issue that
+this behavior is by design and that there will be no security update.
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Disclosure Timeline:
+
+2016-06-28: Vulnerability reported to manufacturer
+2016-06-28: Manufacturer acknowledges e-mail with SySS security advisory
+2016-07-22: Statement from manufacturer concerning reported security
+            issue
+2016-07-29: Public release of the security advisory
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+References:
+
+[1] Product website for Microsoft Wireless Desktop 2000
+    https://www.microsoft.com/accessories/en-us/products/keyboards/wireless-desktop-2000/m7j-00001
+[2] Product website for Crazyradio PA
+    https://www.bitcraze.io/crazyradio-pa/
+[3] SySS Security Advisory SYSS-2016-059
+    https://www.syss.de/fileadmin/dokumente/Publikationen/Advisories/SYSS-2016-059.txt
+[4] SySS Responsible Disclosure Policy
+    https://www.syss.de/en/responsible-disclosure-policy/
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Credits:
+
+This security vulnerability was found by Matthias Deeg and Gerhard
+Klostermeier of the SySS GmbH.
+
+E-Mail: matthias.deeg (at) syss.de
+Public Key: https://www.syss.de/fileadmin/dokumente/Materialien/PGPKeys/Matthias_Deeg.asc
+Key fingerprint = D1F0 A035 F06C E675 CDB9 0514 D9A4 BF6A 34AD 4DAB
+
+E-Mail: gerhard.klostermeier (at) syss.de
+Public Key: https://www.syss.de/fileadmin/dokumente/PGPKeys/Gerhard_Klostermeier.asc
+Key fingerprint = 8A9E 75CC D510 4FF6 8DB5 CC30 3802 3AAB 573E B2E7
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Disclaimer:
+
+The information provided in this security advisory is provided "as is" 
+and without warranty of any kind. Details of this security advisory may 
+be updated in order to provide as accurate information as possible. The
+latest version of this security advisory is available on the SySS Web 
+site.
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Copyright:
+
+Creative Commons - Attribution (by) - Version 3.0
+URL: http://creativecommons.org/licenses/by/3.0/deed.en
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2
+
+iQIcBAEBCgAGBQJXmzkcAAoJENmkv2o0rU2rGccP/0SAO/VCPoEYcvjVE59xzv3R
+np/AlWiBrVxpXYlZanXeVsX/Te+MeueoQGirM9AdotP/4JWa9JIT6BeH0SX/VT7V
+oSUkVlr/KmHWb2iN0BAgj/szq8rMisvrXt2MOeH3no3OCL34vJH+bIZnuXp8Es51
+sFFjynfVZ5Xk14IeQbtyoCPmlsgCNYdLNB2Xp7W8qpkGt5bHGu+GLgIbj6RunCCR
+Pblua+BBlyl/ipvFUPR6vAGgOqCotQpa4Oou9/OKgZlSd/LMYqyLV16cizZHAPxX
+Se2MYIJkzs+DErbsFzCkMsXAM2oUl3eSzdPrnXReW1Df58UGgrJEeG6MLOIDOvMH
+EgKOJd+zUbwsu//e+ZOr0rkKuO8TPFWZWc2YCbeEP+z2SGs/kujsp59PmxL43pER
+8pLcPtOa27HNW+LChV0xZv67D219dQ+kaYXbJLulwTZhKCpG692cs88hpHah0QQB
+rjsqT0Q1uxmRtdr80WXbJPjkwsKbZ/eOqKxcl/Pdw1RwwfdqLjGBdyAZQs8/aska
+WU7m+4CUGgB9Az2wOLzn6BjRgjTsGhEskcSdQBv4BcL5DgygCTE5zBWtb5fsJgd0
+T4wajMW031H5XOWQlZwNluuswIzaomXusG4mQlOZIDCXBOH1lqpTT0lGviqqxAnT
+F0sDbPUzt6R/+hwb6Flh
+=1fVa
+-----END PGP SIGNATURE-----

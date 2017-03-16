@@ -1,0 +1,160 @@
+﻿-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA512
+
+Advisory ID: SYSS-2016-075
+Product: Multimedia Presentation Remote
+Manufacturer: Targus
+Affected Version(s): Model AMP09-EU
+Tested Version(s): Model AMP09-EU
+Vulnerability Type: Insufficient Verification of Data Authenticity (CWE-345)
+                    Mouse Spoofing Attack
+Risk Level: Medium
+Solution Status: Open
+Manufacturer Notification: 2016-08-16
+Solution Date: -
+Public Disclosure: 2016-10-12
+CVE Reference: Not yet assigned
+Authors of Advisory: Matthias Deeg (SySS GmbH)
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Overview:
+
+Targus Multimedia Presentation Remote is a wireless presenter using 2.4 
+GHz radio communication.
+
+The manufacturer describes the product as follows (see [1]):
+
+"Don't fumble around with wires or fuss over the computer; present like
+a professional and control your computer remotely, using just one 
+device - the Targus Multi Media Presentation Remote with Cursor Control.
+Thanks to the remote's 2.4GHz cordless technology, you can access
+programmes, launch the internet, adjust volumes and play music and 
+videos, all from up to 15 metres away."
+
+Due to unencrypted and unauthenticated mouse data communication, the
+wireless presenter Targus Multimedia Presentation Remote is vulnerable
+to mouse spoofing attacks.
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Vulnerability Details:
+
+The SySS GmbH found out that the wireless presenter Targus Multimedia
+Presentation Remote is prone to mouse spoofing attacks, as the
+cursor control data communication is unencrypted and unauthenticated.
+
+An attacker can analyze the unencrypted cursor control data packets of
+the 2.4 GHz radio communication sent by the wireless presenter to the
+receiver (USB dongle) in order to learn the used protocol. By knowing
+the used mouse data protocol, it is possible to spoof mouse actions
+like mouse movements or mouse clicks by sending forged data packets.
+
+Thus, an attacker is able to remotely control the mouse pointer of a
+target system that is operated with the wireless presenter Targus
+Multimedia Presentation Remote. If the graphical user interface of the
+victim's system is unlocked, an attacker can for example send a list of
+mouse actions that start the virtual on-screen keyboard of the operating
+system and execute arbitrary commands in the context of the currently
+logged in user, for instance a download and execute attack vector.
+
+As the attacker may not have an unobstructed view to the target system's
+screen and may not know the used operating system, the screen 
+resolution, or the current mouse settings, this kind mouse spoofing 
+attack is based on heuristics. But concerning an unlocked and unattended
+system, an attacker can simply try different attack vectors for
+different target system configurations sequentially.
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Proof of Concept (PoC):
+
+The SySS GmbH could successfully perform mouse spoofing attacks against
+a target system operated with the wireless presenter Targus Multimedia
+Presentation Remote using an in-house developed software tool in
+combination with the USB radio dongle Crazyradio PA and the
+nrf-research-firmware by Bastille Networks Internet Security (see [2]
+and [3]).
+
+A proof-of-concept mouse spoofing attack that also applies to the 
+wireless presenter Targus Multimedia Presentation Remote resulting in
+remote code execution using the SySS software tool Radioactive Mouse is
+demonstrated in a video (see [4]).
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Solution:
+
+The SySS GmbH is not aware of a solution for this reported security
+vulnerability.
+
+For further information please contact the manufacturer.
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Disclosure Timeline:
+
+2016-08-16: Vulnerability reported to manufacturer
+2016-08-16: Manufacturer acknowledges e-mail with SySS security advisory
+2016-10-12: Public release of the security advisory
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+References:
+
+[1] Product website for Targus Multimedia Presentation Remote 
+    http://targus.com/uk/multimedia-presentation-remote-amp09eu
+[2] Product website for Crazyradio PA
+    https://www.bitcraze.io/crazyradio-pa/
+[3] Bastille's nRF24 research firmware and tools
+    https://github.com/BastilleResearch/nrf-research-firmware
+[4] SySS Proof-of-Concept Mouse Spoofing Attack Video
+    https://www.youtube.com/watch?v=PkR8EODee44
+[5] SySS Security Advisory SYSS-2016-075
+    https://www.syss.de/fileadmin/dokumente/Publikationen/Advisories/SYSS-2016-075.txt
+[6] SySS Responsible Disclosure Policy
+    https://www.syss.de/en/responsible-disclosure-policy/
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Credits:
+
+This security vulnerability was found by Matthias Deeg of the SySS GmbH.
+
+E-Mail: matthias.deeg (at) syss.de
+Public Key: https://www.syss.de/fileadmin/dokumente/Materialien/PGPKeys/Matthias_Deeg.asc
+Key fingerprint = D1F0 A035 F06C E675 CDB9 0514 D9A4 BF6A 34AD 4DAB
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Disclaimer:
+
+The information provided in this security advisory is provided "as is" 
+and without warranty of any kind. Details of this security advisory may 
+be updated in order to provide as accurate information as possible. The
+latest version of this security advisory is available on the SySS Web 
+site.
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Copyright:
+
+Creative Commons - Attribution (by) - Version 3.0
+URL: http://creativecommons.org/licenses/by/3.0/deed.en
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIcBAEBCgAGBQJX/eQAAAoJENmkv2o0rU2rUIAP/jSrFEYVNPu8AuZs8F8G/wKW
+xy6sOaan8OA5+jXM/3ljz6g/UnDWR4fhhaXv/JsGhqDPRVk2jA11IOHOhm3ZgWP6
+LdyJy8ZSaa0Iaug5opwYXPYsinGYi6/sNOUWSGyqNHR12W+Tg1VV3+Pp/UwMJM59
+O+4wsVHAveqgIZWGdy0lAjXap1UsiX04Z0sxioX/3DfVmlypmnoNTb3PLCieP0rX
+aVHrCfR74siNzRwG4pUWRIuVhEqs1lbKhKrB791a3ICvJpwhuPX9GAUjywk2au15
+WgbTyQORIzpwSATs3S71UvHlfQukvpfspzjlYvVVkDYIeXAB3XtCn3vTi6TUrPva
+ocSKXvZT2Y4+B+EfgZw/t2GMkoestZdYtrHCjVO+QF1fDD+mnRgsRmLM748uQmnp
+u3Bc48VB8qeC0E1Nbj1RsUyRdsUaK7Yqsl7JIeKMRkMQNYgtsdfqkaXg9ear9Z/I
+znajhZ4cJIEldCus/ms1lTRwIGCYvyn8hjSHpl5uRUeVKwT2zIdkcYOa7rNkwhI3
+ycIfxMdwmYDAnPxVPbfU3+tfS3t0zTzCNU2FlNyi5LsW+7z8z38aqIqJXnSh+NjR
+GBMjww2cEhIxOA68s72pPRZPp0DS/tOpw963wbZFTWDjFwzWNTFYtGIAlXnox7GM
+xreTjyklYv3HZtbO1hUj
+=xYBh
+-----END PGP SIGNATURE-----
