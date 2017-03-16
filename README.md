@@ -138,6 +138,10 @@ optional arguments:
 A demo video illustrating a mouse spoofing attack is available on YouTube:
 [Radioactive Mouse States the Obvious](https://www.youtube.com/watch?v=PkR8EODee44)
 
+![Radioactive Mouse States the Obvious PoC Screeshot](https://github.com/SySS-Research/nrf24-playset/blob/master/images/radioactive_mouse_poc1.png)
+
+![Radioactive Mouse States the Obvious PoC Screeshot](https://github.com/SySS-Research/nrf24-playset/blob/master/images/radioactive_mouse_poc2.png)
+
 
 ## simple_replay.py
 
