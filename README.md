@@ -4,8 +4,8 @@ The nRF24 Playset is a collection of software tools for wireless input
 devices like keyboards, mice, and presenters based on Nordic Semiconductor 
 nRF24 transceivers, e.g. nRF24LE1 and nRF24LU1+.
 
-All software tools support USB dongles 
-[nrf-research-firme](https://github.com/BastilleResearch/nrf-research-firmware)
+All software tools support USB dongles with the
+[nrf-research-firmware](https://github.com/BastilleResearch/nrf-research-firmware)
 by the Bastille Threat Research Team (many thanks to @marcnewlin)
  
 
