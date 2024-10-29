@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 """
@@ -21,20 +21,31 @@
 
   You should have received a copy of the GNU General Public License
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
+   
+   Einstein2150 (Update 2024):
+  This program has been migrated and further developed for use with
+  Python 3 by Einstein2150. The author acknowledges that ongoing
+  enhancements and updates to the codebase may continue in the future.
+  Users should be aware that the use of this program is at their own
+  risk, and the author accepts no responsibility for any damages that
+  may arise from its use. It is the user's responsibility to ensure 
+  that their use of the program complies with all applicable laws 
+  and regulations.
+  
 """
 
 from struct import pack
 
 # USB HID keyboard modifier
-MODIFIER_NONE           = 0
-MODIFIER_CONTROL_LEFT   = 1 << 0
-MODIFIER_SHIFT_LEFT     = 1 << 1
-MODIFIER_ALT_LEFT       = 1 << 2
-MODIFIER_GUI_LEFT       = 1 << 3
-MODIFIER_CONTROL_RIGHT  = 1 << 4
-MODIFIER_SHIFT_RIGHT    = 1 << 5
-MODIFIER_ALT_RIGHT      = 1 << 6
-MODIFIER_GUI_RIGHT      = 1 << 7
+MODIFIER_NONE = 0
+MODIFIER_CONTROL_LEFT = 1 << 0
+MODIFIER_SHIFT_LEFT = 1 << 1
+MODIFIER_ALT_LEFT = 1 << 2
+MODIFIER_GUI_LEFT = 1 << 3
+MODIFIER_CONTROL_RIGHT = 1 << 4
+MODIFIER_SHIFT_RIGHT = 1 << 5
+MODIFIER_ALT_RIGHT = 1 << 6
+MODIFIER_GUI_RIGHT = 1 << 7
 
 # USB HID key codes
 KEY_NONE                = 0x00
@@ -247,15 +258,15 @@ KEYMAP_GERMAN = {
         '|' : (MODIFIER_ALT_RIGHT, KEY_EUROPE_2),
         '}' : (MODIFIER_ALT_RIGHT, KEY_0),
         '~' : (MODIFIER_ALT_RIGHT, KEY_BRACKET_RIGHT),
-        u'\'' : (MODIFIER_SHIFT_LEFT, KEY_EUROPE_1),
-        u'Ä' : (MODIFIER_SHIFT_LEFT, KEY_APOSTROPHE),
-        u'Ö' : (MODIFIER_SHIFT_LEFT, KEY_SEMICOLON),
-        u'Ü' : (MODIFIER_SHIFT_LEFT, KEY_BRACKET_LEFT),
-        u'ä' : (MODIFIER_NONE, KEY_APOSTROPHE),
-        u'ö' : (MODIFIER_NONE, KEY_SEMICOLON),
-        u'ü' : (MODIFIER_NONE, KEY_BRACKET_LEFT),
-        u'ß' : (MODIFIER_NONE, KEY_MINUS),
-        u'€' : (MODIFIER_ALT_RIGHT, KEY_E)
+        '\'' : (MODIFIER_SHIFT_LEFT, KEY_EUROPE_1),
+        'Ä' : (MODIFIER_SHIFT_LEFT, KEY_APOSTROPHE),
+        'Ö' : (MODIFIER_SHIFT_LEFT, KEY_SEMICOLON),
+        'Ü' : (MODIFIER_SHIFT_LEFT, KEY_BRACKET_LEFT),
+        'ä' : (MODIFIER_NONE, KEY_APOSTROPHE),
+        'ö' : (MODIFIER_NONE, KEY_SEMICOLON),
+        'ü' : (MODIFIER_NONE, KEY_BRACKET_LEFT),
+        'ß' : (MODIFIER_NONE, KEY_MINUS),
+        '€' : (MODIFIER_ALT_RIGHT, KEY_E)
         }
 
 
@@ -264,121 +275,54 @@ class CherryKeyboard:
 
     def __init__(self, initData):
         """Initialize Cherry keyboard"""
-
-        # set current keymap
         self.currentKeymap = KEYMAP_GERMAN
-
-        # set AES counter
         self.counter = initData[11:]
-
-        # set crypto key
         self.cryptoKey = initData[:11]
 
-
-    def keyCommand(self, modifiers, keycode1, keycode2 = KEY_NONE, keycode3 = KEY_NONE,
-            keycode4 = KEY_NONE, keycode5 = KEY_NONE, keycode6 = KEY_NONE):
+    def keyCommand(self, modifiers, keycode1, keycode2=KEY_NONE, keycode3=KEY_NONE,
+                   keycode4=KEY_NONE, keycode5=KEY_NONE, keycode6=KEY_NONE):
         """Return AES encrypted keyboard data"""
-
-        # generate HID keyboard data
         plaintext = pack("11B", modifiers, 0, keycode1, keycode2, keycode3, keycode4, keycode5, keycode6, 0, 0, 0)
-
-        # encrypt the data with the set crypto key
-        ciphertext = ""
-        i = 0
-        for b in plaintext:
-            ciphertext += chr(ord(b) ^ ord(self.cryptoKey[i]))
-            i += 1
-
+        ciphertext = bytes([plaintext[i] ^ self.cryptoKey[i % len(self.cryptoKey)] for i in range(len(plaintext))])
         return ciphertext + self.counter
 
-
-    def getKeystroke(self, keycode = KEY_NONE, modifiers = MODIFIER_NONE):
-        """Get a keystroke for a given keycode"""
-        keystrokes = []
-
-        # key press
-        keystrokes.append(self.keyCommand(modifiers, keycode))
-
-        # key release
-        keystrokes.append(self.keyCommand(MODIFIER_NONE, KEY_NONE))
-
+    def getKeystroke(self, keycode=KEY_NONE, modifiers=MODIFIER_NONE):
+        keystrokes = [self.keyCommand(modifiers, keycode), self.keyCommand(MODIFIER_NONE, KEY_NONE)]
         return keystrokes
-
 
     def getKeystrokes(self, string):
-        """Get stream of keystrokes for a given string of printable ASCII characters"""
         keystrokes = []
-
         for char in string:
-            # key press
             key = self.currentKeymap[char]
             keystrokes.append(self.keyCommand(key[0], key[1]))
-
-            # key release
             keystrokes.append(self.keyCommand(MODIFIER_NONE, KEY_NONE))
-
         return keystrokes
-
 
 
 class PerixxKeyboard:
     """PerixxKeyboard (HID)"""
 
     def __init__(self, initData):
-        """Initialize Perixx keyboard"""
-
-        # set current keymap
         self.currentKeymap = KEYMAP_GERMAN
-
-        # set AES counter
         self.counter = initData[10:]
-
-        # set crypto key
         self.cryptoKey = initData[:10]
 
-
-    def keyCommand(self, modifiers, keycode1, keycode2 = KEY_NONE, keycode3 = KEY_NONE,
-            keycode4 = KEY_NONE, keycode5 = KEY_NONE, keycode6 = KEY_NONE):
-        """Return AES encrypted keyboard data"""
-
-        # generate HID keyboard data
+    def keyCommand(self, modifiers, keycode1, keycode2=KEY_NONE, keycode3=KEY_NONE,
+                   keycode4=KEY_NONE, keycode5=KEY_NONE, keycode6=KEY_NONE):
         plaintext = pack("10B", modifiers, 0, keycode1, keycode2, keycode3, keycode4, keycode5, keycode6, 0, 0)
-
-        # encrypt the data with the set crypto key
-        ciphertext = ""
-        i = 0
-        for b in plaintext:
-            ciphertext += chr(ord(b) ^ ord(self.cryptoKey[i]))
-            i += 1
-
+        ciphertext = bytes([plaintext[i] ^ self.cryptoKey[i % len(self.cryptoKey)] for i in range(len(plaintext))])
         return ciphertext + self.counter
 
-
-    def getKeystroke(self, keycode = KEY_NONE, modifiers = MODIFIER_NONE):
-        """Get a keystroke for a given keycode"""
-        keystrokes = []
-
-        # key press
-        keystrokes.append(self.keyCommand(modifiers, keycode))
-
-        # key release
-        keystrokes.append(self.keyCommand(MODIFIER_NONE, KEY_NONE))
-
+    def getKeystroke(self, keycode=KEY_NONE, modifiers=MODIFIER_NONE):
+        keystrokes = [self.keyCommand(modifiers, keycode), self.keyCommand(MODIFIER_NONE, KEY_NONE)]
         return keystrokes
 
-
     def getKeystrokes(self, string):
-        """Get stream of keystrokes for a given string of printable ASCII characters"""
         keystrokes = []
-
         for char in string:
-            # key press
             key = self.currentKeymap[char]
             keystrokes.append(self.keyCommand(key[0], key[1]))
-
-            # key release
             keystrokes.append(self.keyCommand(MODIFIER_NONE, KEY_NONE))
-
         return keystrokes
 
 
@@ -386,153 +330,64 @@ class LogitechKeyboard:
     """Logitech Keyboard (HID)"""
 
     def __init__(self, initData):
-        """Initialize Logitech keyboard"""
-
-        # set current keymap
         self.currentKeymap = KEYMAP_GERMAN
-
-        # set crypto key
         self.cryptoKey = initData[2:14]
-
-        # Logitech packet after key release packet
-        self.KEYUP = "\x00\x4F\x00\x01\x16\x00\x00\x00\x00\x9A"
-
+        self.KEYUP = b"\x00\x4F\x00\x01\x16\x00\x00\x00\x00\x9A"
 
     def checksum(self, data):
-        checksum = 0
+        checksum = -sum(data) & 0xFF
+        return pack("B", checksum)
 
-        for b in data:
-            checksum -= ord(b)
-
-        return pack("B", (checksum & 0xff))
-
-
-    def keyCommand(self, modifiers, keycode1, keycode2 = KEY_NONE, keycode3 = KEY_NONE,
-            keycode4 = KEY_NONE, keycode5 = KEY_NONE, keycode6 = KEY_NONE):
-        """Return AES encrypted keyboard data"""
-
-        # generate HID keyboard data plaintext
+    def keyCommand(self, modifiers, keycode1, keycode2=KEY_NONE, keycode3=KEY_NONE,
+                   keycode4=KEY_NONE, keycode5=KEY_NONE, keycode6=KEY_NONE):
         plaintext = pack("12B", modifiers, 0, keycode1, keycode2, keycode3, keycode4, keycode5, keycode6, 0, 0, 0, 0)
-
-        # encrypt the data with the set crypto key
-        ciphertext = ""
-
-        i = 0
-        for b in plaintext:
-            ciphertext += chr(ord(b) ^ ord(self.cryptoKey[i]))
-            i += 1
-
-        # generate Logitech Unifying paket
-        data = "\x00\xD3" + ciphertext + 7 * "\x00"
-
+        ciphertext = bytes([plaintext[i] ^ self.cryptoKey[i % len(self.cryptoKey)] for i in range(len(plaintext))])
+        data = b"\x00\xD3" + ciphertext + b'\x00' * 7
         checksum = self.checksum(data)
-
         return data + checksum
 
-
-    def getKeystroke(self, keycode = KEY_NONE, modifiers = MODIFIER_NONE):
-        """Get a keystroke for a given keycode"""
-        keystrokes = []
-
-        # key press
-        keystrokes.append(self.keyCommand(modifiers, keycode))
-
-        # key release
-        keystrokes.append(self.keyCommand(MODIFIER_NONE, KEY_NONE))
-        keystrokes.append(self.KEYUP)
-
+    def getKeystroke(self, keycode=KEY_NONE, modifiers=MODIFIER_NONE):
+        keystrokes = [self.keyCommand(modifiers, keycode), self.keyCommand(MODIFIER_NONE, KEY_NONE), self.KEYUP]
         return keystrokes
 
-
     def getKeystrokes(self, string):
-        """Get stream of keystrokes for a given string of printable ASCII characters"""
         keystrokes = []
-
         for char in string:
-            # key press
             key = self.currentKeymap[char]
             keystrokes.append(self.keyCommand(key[0], key[1]))
-
-            # key release
             keystrokes.append(self.keyCommand(MODIFIER_NONE, KEY_NONE))
             keystrokes.append(self.KEYUP)
-
         return keystrokes
 
 
 class LogitechPresenter:
     """Logitech Presenter (HID)"""
 
-
     def __init__(self):
-        """Initialize Logitech Presenter keyboard"""
-
-        # set current keymap
         self.currentKeymap = KEYMAP_GERMAN
-
-        # magic packet sent after data packets
-        self.magic_packet = "\x00\x4F\x00\x00\x55\x00\x00\x00\x00\x5C"
-
+        self.magic_packet = b"\x00\x4F\x00\x00\x55\x00\x00\x00\x00\x5C"
 
     def checksum(self, data):
-        checksum = 0
+        checksum = -sum(data) & 0xFF
+        return pack("B", checksum)
 
-        for b in data:
-            checksum -= ord(b)
-
-        return pack("B", (checksum & 0xff))
-
-
-    def keyCommand(self, modifiers, keycode1, keycode2 = KEY_NONE, keycode3 = KEY_NONE,
-            keycode4 = KEY_NONE, keycode5 = KEY_NONE, keycode6 = KEY_NONE):
-        """Return keyboard data"""
-
-
-        # generate HID keyboard data
+    def keyCommand(self, modifiers, keycode1, keycode2=KEY_NONE, keycode3=KEY_NONE,
+                   keycode4=KEY_NONE, keycode5=KEY_NONE, keycode6=KEY_NONE):
         data = pack("9B", 0, 0xC1, modifiers, keycode1, keycode2, keycode3, keycode4, keycode5, keycode6)
-
         checksum = self.checksum(data)
-
         return data + checksum
 
-
-    def getKeystroke(self, keycode = KEY_NONE, modifiers = MODIFIER_NONE):
-        """Get a keystroke for a given keycode"""
-        keystrokes = []
-
-        # key press
-        keystrokes.append(self.keyCommand(modifiers, keycode))
-
-        # magic packet
-        keystrokes.append(self.magic_packet)
-
-        # key release
-        keystrokes.append(self.keyCommand(MODIFIER_NONE, KEY_NONE))
-
-        # magic packet
-        keystrokes.append(self.magic_packet)
-
-
+    def getKeystroke(self, keycode=KEY_NONE, modifiers=MODIFIER_NONE):
+        keystrokes = [self.keyCommand(modifiers, keycode), self.magic_packet, 
+                      self.keyCommand(MODIFIER_NONE, KEY_NONE), self.magic_packet]
         return keystrokes
-
 
     def getKeystrokes(self, string):
-        """Get stream of keystrokes for a given string of printable ASCII characters"""
         keystrokes = []
-
         for char in string:
-            # key press
             key = self.currentKeymap[char]
             keystrokes.append(self.keyCommand(key[0], key[1]))
-
-            # magic packet
             keystrokes.append(self.magic_packet)
-
-            # key release
             keystrokes.append(self.keyCommand(MODIFIER_NONE, KEY_NONE))
-
-            # magic packet
             keystrokes.append(self.magic_packet)
-
         return keystrokes
-

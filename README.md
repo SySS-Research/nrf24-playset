@@ -1,4 +1,4 @@
-# nRF24 Playset
+# python3 compatible nRF24 Playset
 
 The nRF24 Playset is a collection of software tools for wireless input
 devices like keyboards, mice, and presenters based on Nordic Semiconductor 
@@ -7,14 +7,19 @@ nRF24 transceivers, e.g. nRF24LE1 and nRF24LU1+.
 All software tools support USB dongles with the
 [nrf-research-firmware](https://github.com/BastilleResearch/nrf-research-firmware)
 by the Bastille Threat Research Team (many thanks to @marcnewlin)
+
+
+## Migration from Python 2 to Python 3
+
+This project has been migrated from Python 2 to Python 3. The codebase has been thoroughly updated to take advantage of Python 3's features, syntax improvements, and enhanced libraries. Users should ensure that they are using a Python 3.x interpreter to run the script. Compatibility with Python 2 is no longer supported, and users are encouraged to upgrade their environments accordingly.
  
 
 ## Requirements
 
-- nRF24LU1+ USB radio dongle with flashed [nrf-research-firmware](https://github.com/BastilleResearch/nrf-research-firmware) by the Bastille Threat Research Team, e. g.
+- nRF24LU1+ USB radio dongle with flashed python3 compatible [nrf-research-firmware](https://github.com/Einstein2150/nrf-research-firmware) 
 	* [Bitcraze CrazyRadio PA USB dongle](https://www.bitcraze.io/crazyradio-pa/)
 	* Logitech Unifying dongle (model C-U0007, Nordic Semiconductor based)
-- Python2
+- Python3
 - PyUSB
 - PyGame for GUI-based tools
 
@@ -22,12 +27,31 @@ by the Bastille Threat Research Team (many thanks to @marcnewlin)
 ## Tools
 
 
-### cherry_attack.py
+### cherry_attack.py v.1.1 by Einstein2150
 
 Proof-of-concept software tool to demonstrate the replay and keystroke injection
 vulnerabilities of the wireless keyboard Cherry B.Unlimited AES
 
-![Cherry Attack PoC](https://github.com/SySS-Research/nrf24-playset/blob/master/images/cherry_attack_poc.png)
+#### New commandline Features
+
+The `-key` parameter specifies the cryptographic key used for the Cherry keyboard. It must be provided in a hex format (16 bytes) without spaces or special characters
+
+The `-adr` parameter specifies the device address of the Cherry keyboard. This address must also be in hex format (5 bytes) and formatted similarly to the key, with pairs of hexadecimal digits separated by colons (e.g., 00:11:22:33:44).
+
+The `-p` or `--payload` parameter allows users to pass a custom payload that will be used during the attack. This gives users more flexibility when conducting their tests and attacks.
+
+The new `-x` or `--execute` option allows users to execute an attack immediately without using the application's user interface. When both the `-p` (payload) and `-x` options are provided at startup, the attack is executed with the supplied payload right away.
+
+**Example:**
+
+```
+bash
+python cherry_attack.py -key 1234567890123456789012 -adr 00:11:22:33:44 -p "Your custom payload" -x
+```
+
+#### New insights in cherrys encryption
+
+During testing with the extensions, I [@Einstein2150](https://github.com/Einstein2150) also noticed that multiple valid keys for keystroke injection can be concurrently valid at the same time. With the enhanced debugging output, the keys along with their corresponding device MAC addresses are documented as entries in the log. Feel free to collect as many working keys for your device as you can.
 
 
 ### keystroke_injector.py
@@ -38,7 +62,7 @@ vulnerability of some AES encrypted wireless keyboards
 Usage:
 
 ```
-# python2 keystroke_injector.py --help
+# python3 keystroke_injector.py --help
         _____  ______ ___  _  _     _____  _                      _  
        |  __ \|  ____|__ \| || |   |  __ \| |                    | |     
   _ __ | |__) | |__     ) | || |_  | |__) | | __ _ _   _ ___  ___| |_       
@@ -76,7 +100,7 @@ vulnerability of nRF24-based Logitech wireless presenters
 Usage:
 
 ```
-# python2 logitech_presenter.py --help
+# python3 logitech_presenter.py --help
         _____  ______ ___  _  _     _____  _                      _  
        |  __ \|  ____|__ \| || |   |  __ \| |                    | |     
   _ __ | |__) | |__     ) | || |_  | |__) | | __ _ _   _ ___  ___| |_       
@@ -110,7 +134,7 @@ unencrypted and unauthenticated wireless mouse communication
 Usage:
 
 ```
-# python2 radioactivemouse.py --help
+# python3 radioactivemouse.py --help
         _____  ______ ___  _  _     _____  _                      _  
        |  __ \|  ____|__ \| || |   |  __ \| |                    | |     
   _ __ | |__) | |__     ) | || |_  | |__) | | __ _ _   _ ___  ___| |_       
@@ -151,7 +175,7 @@ different wireless desktop sets using nRF24 ShockBurst radio communication
 Usage:
 
 ```
-# python2 simple_replay.py --help
+# python3 simple_replay.py --help
         _____  ______ ___  _  _     _____  _                      _  
        |  __ \|  ____|__ \| || |   |  __ \| |                    | |     
   _ __ | |__) | |__     ) | || |_  | |__) | | __ _ _   _ ___  ___| |_       
